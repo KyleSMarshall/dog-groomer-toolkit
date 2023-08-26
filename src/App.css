@@ -21,6 +21,18 @@
   display: none;
 }
 
+.fc-event-main {
+  background-color: darkslategray;
+}
+
+.fc .fc-daygrid-day.fc-day-today {
+  background-color: #aaf0c1;
+}
+
+.fc-daygrid-event-dot {
+  border-color: darkgreen;
+}
+
 .fc-daygrid-day-top a:hover {
   cursor: pointer;
   font-weight: bolder;
@@ -53,7 +65,7 @@
 
 .app-container {
   display: flex;
-  height: 100vh;
+  height: 100%;
   background-color: #cff8e5;
 }
 

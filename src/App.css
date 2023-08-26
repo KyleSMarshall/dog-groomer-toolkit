@@ -13,6 +13,14 @@
   }
 }
 
+.fc-event-title {
+  white-space: pre-line;
+}
+
+.fc-event-time {
+  display: none;
+}
+
 .App-header {
   background-color: #282c34;
   min-height: 100vh;

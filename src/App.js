@@ -8,11 +8,13 @@ import {
   ClientCreateForm, 
   ClientUpdateForm, 
   DogCreateForm, 
-  DogUpdateForm 
+  DogUpdateForm, 
+  EventCreateForm
 } from './ui-components';
 
 
 import {Amplify, DataStore} from 'aws-amplify';
+import '@aws-amplify/ui-react/styles.css';
 import { Event, Client, Dog } from './models';
 import awsConfig from './aws-exports';
 
@@ -20,23 +22,52 @@ function Calendar() {
   const calendarRef = useRef(null);
   const [events, setEvents] = React.useState([]);
 
-  Amplify.configure(awsConfig);
-
   React.useEffect(() => {
+    
     const fetchEvents = async () => {
       try {
-        const eventData = await DataStore.query(Client);
+        const eventData = await DataStore.query(Event);
+        const dogData = await DataStore.query(Dog);
+        const clientData = await DataStore.query(Client);
+
+        // Convert dogData and clientData into objects for faster lookups
+        const dogLookup = dogData.reduce((acc, dog) => ({ ...acc, [dog.id]: dog }), {});
+        const clientLookup = clientData.reduce((acc, client) => ({ ...acc, [client.id]: client }), {});
+
         console.log(eventData);
-        //setEvents(eventData.data.listEvents.items);
+        // Transform to a format FullCalendar understands
+        // Map events and attach related data
+        const transformedEvents = eventData.map(event => {
+          const dog = dogLookup[event.eventDogId];
+          const client = clientLookup[event.eventClientId];
+
+          const dogName = dog ? dog.Name : "Unknown Dog";
+          const dogBreed = dog ? dog.Breed : "Unknown Breed";
+          const clientName = client ? client.Name : "Unknown Client";
+          const clientPhoneNumber = client ? client.Phone_Number : "Unknown Number";
+
+          const title = `Dog: ${dogName} - ${dogBreed}\nOwner: ${clientName} - ${clientPhoneNumber}`;
+
+          return {
+              start: event.Time_Start,
+              end: event.Time_End,
+              title: title,
+              id: event.id,
+          };
+        });
+      
+        setEvents(transformedEvents);
+        console.log(transformedEvents);
       } catch (error) {
         console.error("Error fetching events:", error);
       }
+      
     }
     fetchEvents();
   }, []);
 
   const handleDateClick = (arg) => {
-    if (arg.view.type === 'dayGridMonth') {;
+    if (arg.view.type === 'dayGridMonth') {
       const calendarApi = calendarRef.current.getApi();
       calendarApi.changeView('timeGridDay', arg.date);
     }
@@ -48,7 +79,7 @@ function Calendar() {
       plugins={[ dayGridPlugin, timeGridPlugin, interactionPlugin ]}
       dateClick={handleDateClick}
       initialView='dayGridMonth'
-      weekends={false}
+      weekends={true}
       headerToolbar={{
         left: 'prev,next today',
         center: 'title',
@@ -59,13 +90,14 @@ function Calendar() {
       nowIndicator={true}
       allDaySlot={false}
       expandRows={true}
+      events={events}
     />
   );
 }
 
 function MyCalendarComponent() {
   return <Calendar />;
-  //return <DogCreateForm/>
+  //return <EventCreateForm/>
 }
 
 export default MyCalendarComponent;

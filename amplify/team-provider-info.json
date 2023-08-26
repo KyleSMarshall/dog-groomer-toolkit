@@ -1,0 +1,23 @@
+{
+  "staging": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-doggroomertoolkit-staging-140023-authRole",
+      "UnauthRoleArn": "arn:aws:iam::340567151945:role/amplify-doggroomertoolkit-staging-140023-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::340567151945:role/amplify-doggroomertoolkit-staging-140023-authRole",
+      "Region": "ca-central-1",
+      "DeploymentBucketName": "amplify-doggroomertoolkit-staging-140023-deployment",
+      "UnauthRoleName": "amplify-doggroomertoolkit-staging-140023-unauthRole",
+      "StackName": "amplify-doggroomertoolkit-staging-140023",
+      "StackId": "arn:aws:cloudformation:ca-central-1:340567151945:stack/amplify-doggroomertoolkit-staging-140023/923c4ba0-4286-11ee-989a-020ea59cb4f0",
+      "AmplifyAppId": "d1yrnshgy64u5p"
+    },
+    "categories": {
+      "auth": {
+        "DogGroomerToolkit": {}
+      },
+      "storage": {
+        "s3doggroomertoolkitstorages3": {}
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+type Event @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  Time_Start: AWSDateTime
+  Client: Client @hasOne
+  Dog: Dog @hasOne
+  Time_End: AWSDateTime
+}
+
+type Client @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  Name: String
+  Phone_Number: String
+  Client_Since: AWSDate
+  Dogs: [Dog] @hasMany(indexName: "byClient", fields: ["id"])
+}
+
+type Dog @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  Name: String
+  Breed: String
+  Age: Int
+  Temperment: String
+  Last_Cut: AWSDate
+  clientID: ID! @index(name: "byClient")
+  Client: Client @belongsTo(fields: ["clientID"])
+}
+ 

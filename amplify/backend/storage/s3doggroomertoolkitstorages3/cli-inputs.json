@@ -1,0 +1,11 @@
+{
+  "resourceName": "s3doggroomertoolkitstorages3",
+  "bucketName": "dog-groomer-toolkit-storage-s3",
+  "policyUUID": "46559f63",
+  "storageAccess": "auth",
+  "guestAccess": [],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "READ"
+  ]
+}

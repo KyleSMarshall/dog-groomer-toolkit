@@ -1,25 +1,71 @@
-import logo from './logo.svg';
 import './App.css';
+import React, { useRef } from 'react';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import { 
+  ClientCreateForm, 
+  ClientUpdateForm, 
+  DogCreateForm, 
+  DogUpdateForm 
+} from './ui-components';
 
-function App() {
+
+import {Amplify, DataStore} from 'aws-amplify';
+import { Event, Client, Dog } from './models';
+import awsConfig from './aws-exports';
+
+function Calendar() {
+  const calendarRef = useRef(null);
+  const [events, setEvents] = React.useState([]);
+
+  Amplify.configure(awsConfig);
+
+  React.useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const eventData = await DataStore.query(Client);
+        console.log(eventData);
+        //setEvents(eventData.data.listEvents.items);
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      }
+    }
+    fetchEvents();
+  }, []);
+
+  const handleDateClick = (arg) => {
+    if (arg.view.type === 'dayGridMonth') {;
+      const calendarApi = calendarRef.current.getApi();
+      calendarApi.changeView('timeGridDay', arg.date);
+    }
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <FullCalendar
+      ref={calendarRef}
+      plugins={[ dayGridPlugin, timeGridPlugin, interactionPlugin ]}
+      dateClick={handleDateClick}
+      initialView='dayGridMonth'
+      weekends={false}
+      headerToolbar={{
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+      }}
+      slotMinTime={"08:00:00"}
+      slotMaxTime={"19:00:00"}
+      nowIndicator={true}
+      allDaySlot={false}
+      expandRows={true}
+    />
   );
 }
 
-export default App;
+function MyCalendarComponent() {
+  return <Calendar />;
+  //return <DogCreateForm/>
+}
+
+export default MyCalendarComponent;

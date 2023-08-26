@@ -21,6 +21,11 @@
   display: none;
 }
 
+.fc-daygrid-day-top a:hover {
+  cursor: pointer;
+  font-weight: bolder;
+}
+
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
@@ -43,4 +48,43 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+
+.app-container {
+  display: flex;
+  height: 100vh;
+  background-color: #cff8e5;
+}
+
+.side-menu {
+  width: 200px;
+  background-color: #AAF0C1;
+  padding: 15px;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+
+.side-menu a {
+  display: block;
+  padding: 10px 15px;
+  text-decoration: none;
+  color: #333;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.side-menu a.active {
+  background-color: #cff8e5; /* Choose any color you prefer for the active link */
+  color: rgb(0, 0, 0);
+  border-radius: 10px;
+}
+
+.side-menu a:hover {
+  background-color: #cff8e5;
+  border-radius: 10px;
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
 }

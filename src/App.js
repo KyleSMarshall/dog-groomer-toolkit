@@ -1,5 +1,6 @@
 import './App.css';
 import React, { useRef } from 'react';
+import { BrowserRouter as Router, Route, Link, Routes, useLocation } from 'react-router-dom';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -41,10 +42,10 @@ function Calendar() {
           const dog = dogLookup[event.eventDogId];
           const client = clientLookup[event.eventClientId];
 
-          const dogName = dog ? dog.Name : "Unknown Dog";
-          const dogBreed = dog ? dog.Breed : "Unknown Breed";
-          const clientName = client ? client.Name : "Unknown Client";
-          const clientPhoneNumber = client ? client.Phone_Number : "Unknown Number";
+          const dogName = dog ? dog.Name : "";
+          const dogBreed = dog ? dog.Breed : "";
+          const clientName = client ? client.Name : "";
+          const clientPhoneNumber = client ? client.Phone_Number : "";
 
           const title = `Dog: ${dogName} - ${dogBreed}\nOwner: ${clientName} - ${clientPhoneNumber}`;
 
@@ -95,9 +96,48 @@ function Calendar() {
   );
 }
 
-function MyCalendarComponent() {
-  return <Calendar />;
-  //return <EventCreateForm/>
+function SideMenu() {
+    const location = useLocation();
+
+    return (
+        <div className="side-menu">
+            <Link to="/" className={location.pathname === '/' ? 'active' : ''}>
+                Calendar
+            </Link>
+            <Link to="/add-client" className={location.pathname === '/add-client' ? 'active' : ''}>
+                Add Client
+            </Link>
+            <Link to="/add-dog" className={location.pathname === '/add-dog' ? 'active' : ''}>
+                Add Dog
+            </Link>
+            <Link to="/create-event" className={location.pathname === '/create-event' ? 'active' : ''}>
+                Create Event
+            </Link>
+        </div>
+    );
 }
 
-export default MyCalendarComponent;
+
+function App() {
+  return (
+      <Router>
+          <div className="app-container">
+              {/* Side Menu */}
+              <SideMenu />
+
+              {/* Content */}
+              <div className="content">
+                  <Routes>
+                      <Route path="/" element={<Calendar />} />
+                      <Route path="/add-client" element={<ClientCreateForm />} />
+                      <Route path="/add-dog" element={<DogCreateForm />} />
+                      <Route path="/create-event" element={<EventCreateForm />} />
+                  </Routes>
+              </div>
+          </div>
+      </Router>
+  );
+}
+
+
+export default App;

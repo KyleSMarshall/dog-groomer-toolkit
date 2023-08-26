@@ -6,6 +6,7 @@
 
 /* eslint-disable */
 import * as React from "react";
+import { useNavigate  } from 'react-router-dom';
 import {
   Autocomplete,
   Badge,
@@ -259,6 +260,7 @@ export default function ClientCreateForm(props) {
     setErrors((errors) => ({ ...errors, [fieldName]: validationResponse }));
     return validationResponse;
   };
+  const navigate = useNavigate();
   return (
     <Grid
       as="form"
@@ -332,6 +334,10 @@ export default function ClientCreateForm(props) {
           if (onSuccess) {
             onSuccess(modelFields);
           }
+
+          // Redirect to the calendar page
+          navigate('/');
+
           if (clearOnSuccess) {
             resetStateValues();
           }

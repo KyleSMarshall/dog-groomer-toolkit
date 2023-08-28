@@ -18,6 +18,7 @@ import {Amplify, DataStore} from 'aws-amplify';
 import '@aws-amplify/ui-react/styles.css';
 import { Event, Client, Dog } from './models';
 import awsConfig from './aws-exports';
+import { DataGrid, GridRowsProp, GridColDef } from '@mui/x-data-grid';
 
 function Calendar() {
   const calendarRef = useRef(null);
@@ -117,6 +118,68 @@ function SideMenu() {
     );
 }
 
+function DataViewer() {
+  const calendarRef = useRef(null);
+  const [events, setEvents] = React.useState([]);
+
+  React.useEffect(() => {
+    
+    const fetchEvents = async () => {
+      try {
+        const events = await DataStore.query(Event);
+        const dogs = await DataStore.query(Dog);
+        const owners = await DataStore.query(Client);
+
+        // Create a lookup table for owners
+        const ownerLookup = {};
+        owners.forEach(owner => {
+          ownerLookup[owner.id] = owner;
+        });
+
+        // Create a lookup table for dogs
+        const dogLookup = {};
+        dogs.forEach(dog => {
+          dogLookup[dog.id] = dog;
+        });
+        
+        // Transform events to include related dog and owner data
+        const combinedData = events.map(event => {
+          const relatedDog = dogLookup[event.eventDogId];
+          const relatedOwner = ownerLookup[event.eventClientId];
+          console.log(relatedOwner);
+          return {
+            ...event, // event data
+            dogName: relatedDog.Name, // or any other dog fields you want
+            ownerName: relatedOwner.Name, // or any other owner fields you want
+            // ... add more fields as needed
+          };
+        });
+
+        setEvents(combinedData);
+        console.log(combinedData);
+
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      }
+      
+    }
+    fetchEvents();
+  }, []);
+
+  const columns = [
+    { field: 'id', headerName: 'Event ID', width: 150 },
+    { field: 'eventName', headerName: 'Event', width: 150 }, // assuming events have a field called eventName
+    { field: 'dogName', headerName: 'Dog Name', width: 150 },
+    { field: 'ownerName', headerName: 'Owner Name', width: 150 },
+    // ... add more columns as needed
+  ];
+
+  return (
+    <div style={{ height: 300, width: '100%' }}>
+      <DataGrid rows={events} columns={columns} pageSize={10} />
+    </div>
+  );
+}
 
 function App() {
   return (
@@ -128,7 +191,7 @@ function App() {
               {/* Content */}
               <div className="content">
                   <Routes>
-                      <Route path="/" element={<Calendar />} />
+                      <Route path="/" element={<DataViewer />} />
                       <Route path="/add-client" element={<ClientCreateForm />} />
                       <Route path="/add-dog" element={<DogCreateForm />} />
                       <Route path="/create-event" element={<EventCreateForm />} />

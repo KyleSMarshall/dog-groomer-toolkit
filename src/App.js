@@ -17,8 +17,9 @@ import {
 import {Amplify, DataStore} from 'aws-amplify';
 import '@aws-amplify/ui-react/styles.css';
 import { Event, Client, Dog } from './models';
-import awsConfig from './aws-exports';
-import { DataGrid, GridRowsProp, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridToolbarContainer, GridSearchIcon, GridToolbarQuickFilter} from '@mui/x-data-grid';
+import { Button } from '@mui/material';
+import './DataViewer.css'
 
 function Calendar() {
   const calendarRef = useRef(null);
@@ -105,21 +106,14 @@ function SideMenu() {
             <Link to="/" className={location.pathname === '/' ? 'active' : ''}>
                 Calendar
             </Link>
-            <Link to="/add-client" className={location.pathname === '/add-client' ? 'active' : ''}>
-                Add Client
-            </Link>
-            <Link to="/add-dog" className={location.pathname === '/add-dog' ? 'active' : ''}>
-                Add Dog
-            </Link>
-            <Link to="/create-event" className={location.pathname === '/create-event' ? 'active' : ''}>
-                Create Event
+            <Link to="/Dataviewer" className={location.pathname === '/Dataviewer' ? 'active' : ''}>
+                Data Viewer
             </Link>
         </div>
     );
 }
 
 function DataViewer() {
-  const calendarRef = useRef(null);
   const [events, setEvents] = React.useState([]);
 
   React.useEffect(() => {
@@ -167,16 +161,32 @@ function DataViewer() {
   }, []);
 
   const columns = [
-    { field: 'id', headerName: 'Event ID', width: 150 },
     { field: 'eventName', headerName: 'Event', width: 150 }, // assuming events have a field called eventName
     { field: 'dogName', headerName: 'Dog Name', width: 150 },
     { field: 'ownerName', headerName: 'Owner Name', width: 150 },
     // ... add more columns as needed
   ];
 
+  function CustomToolbar() {
+    return (
+      <GridToolbarContainer className='grid-toolbar-continer'>
+        <Link to="/add-dog" className="data-action-link">Add Dog</Link>
+        <Link to="/add-client" className="data-action-link">Add Client</Link>
+        <GridToolbarQuickFilter />
+      </GridToolbarContainer>
+    );
+  }
+
   return (
-    <div style={{ height: 300, width: '100%' }}>
-      <DataGrid rows={events} columns={columns} pageSize={10} />
+    <div className="grid-container">
+      <DataGrid 
+        rows={events} 
+        columns={columns} 
+        pageSize={10} 
+        components={{
+          Toolbar: CustomToolbar,
+        }}
+      />
     </div>
   );
 }
@@ -191,10 +201,10 @@ function App() {
               {/* Content */}
               <div className="content">
                   <Routes>
-                      <Route path="/" element={<DataViewer />} />
-                      <Route path="/add-client" element={<ClientCreateForm />} />
+                      <Route path="/" element={<Calendar />} />
+                      <Route path="/Dataviewer" element={<DataViewer />} />
                       <Route path="/add-dog" element={<DogCreateForm />} />
-                      <Route path="/create-event" element={<EventCreateForm />} />
+                      <Route path="/add-client" element={<ClientCreateForm />} />
                   </Routes>
               </div>
           </div>

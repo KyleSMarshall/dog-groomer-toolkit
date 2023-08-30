@@ -1,0 +1,21 @@
+.grid-container {
+    height: 400px;
+    width: 100%;
+    scrollbar-color: #cee9e3; /* For Firefox */
+    scrollbar-width: thin;
+}
+  
+  /* Modern mint green scrollbar with rounded edges */
+  .grid-container ::-webkit-scrollbar {
+    width: 12px;
+  }
+  
+  .grid-container ::-webkit-scrollbar-thumb {
+    background: #fff4f5;
+    border-radius: 8px;
+  }
+  
+  .grid-container ::-webkit-scrollbar-thumb:hover {
+    background: #cee9e3;
+  }
+  

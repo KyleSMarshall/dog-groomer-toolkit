@@ -119,35 +119,49 @@ function DataViewer() {
     
     const fetchEvents = async () => {
       try {
-        const events = await DataStore.query(Event);
+        // Query all the dogs and owners
         const dogs = await DataStore.query(Dog);
         const owners = await DataStore.query(Client);
+        const events = await DataStore.query(Event);
 
-        // Create a lookup table for owners
-        const ownerLookup = {};
-        owners.forEach(owner => {
-          ownerLookup[owner.id] = owner;
-        });
+        // Create lookup tables for faster lookups
+        const ownerLookup = owners.reduce((acc, owner) => ({ ...acc, [owner.id]: owner }), {});
 
-        // Create a lookup table for dogs
-        const dogLookup = {};
-        dogs.forEach(dog => {
-          dogLookup[dog.id] = dog;
-        });
-        
-        // Transform events to include related dog and owner data
-        const combinedData = events.map(event => {
-          const relatedDog = dogLookup[event.eventDogId];
-          const relatedOwner = ownerLookup[event.eventClientId];
+        // Create a lookup for the most recent event date, type, and comments for each dog
+        const mostRecentEventLookup = events.reduce((acc, event) => {
+          if (!acc[event.eventDogId] || new Date(acc[event.eventDogId].date) < new Date(event.Time_Start)) {
+            acc[event.eventDogId] = {
+              date: event.Time_Start,
+              type: event.Type,
+              comments: event.Comments,
+            };
+          }
+          return acc;
+        }, {});
+
+        // Transform dogs to include related owner and most recent event data
+        const combinedData = dogs.map(dog => {
+          const relatedOwner = ownerLookup[dog.dogClientId];
+
+          const mostRecentEvent = mostRecentEventLookup[dog.id];
+          const mostRecentEventDate = mostRecentEvent ? new Date(mostRecentEvent.date).toISOString().split('T')[0] : "N/A";
+          const eventType = mostRecentEvent ? mostRecentEvent.type : "N/A";
+          const eventComments = mostRecentEvent ? mostRecentEvent.comments : "N/A";
+
           return {
-            ...event, // event data
-            dogName: relatedDog.Name, // or any other dog fields you want
-            ownerName: relatedOwner.Name, // or any other owner fields you want
-            // ... add more fields as needed
+            ...dog, // existing dog data
+            ownerName: relatedOwner ? relatedOwner.Name : 'N/A', // Add owner name
+            ownerNumber: relatedOwner ? relatedOwner.Phone_Number : 'N/A',
+            mostRecentEventDate: mostRecentEventDate, // Most recent event date
+            eventType: eventType, // Event type
+            eventComments: eventComments, // Event comments
           };
         });
 
-        setEvents(combinedData);
+        console.log(combinedData);
+        setEvents(combinedData); // Assuming you'll change the state variable name to something more appropriate like setDogs
+
+
 
       } catch (error) {
         console.error("Error fetching events:", error);
@@ -158,9 +172,16 @@ function DataViewer() {
   }, []);
 
   const columns = [
-    { field: 'eventName', headerName: 'Event', width: 150 }, // assuming events have a field called eventName
-    { field: 'dogName', headerName: 'Dog Name', width: 150 },
+    { field: 'Name', headerName: 'Dog Name', width: 150 },
+    { field: 'Breed', headerName: 'Breed', width: 150 },
     { field: 'ownerName', headerName: 'Owner Name', width: 150 },
+    { field: 'ownerNumber', headerName: 'Phone Number', width: 150 },
+    { field: 'mostRecentEventDate', headerName: 'Last Appointment', width: 150 },
+    { field: 'Planned_Frequency', headerName: 'Planned Frequency', width: 150 },
+    { field: 'Age', headerName: 'Age', width: 150 },
+    { field: 'Temperment', headerName: 'Temperment', width: 150 },
+    { field: 'Style', headerName: 'Style', width: 150 },
+    { field: 'eventComments', headerName: 'Comments', width: 150 },
     // ... add more columns as needed
   ];
 

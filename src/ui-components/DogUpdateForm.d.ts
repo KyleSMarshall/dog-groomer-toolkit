@@ -18,7 +18,8 @@ export declare type DogUpdateFormInputValues = {
     Breed?: string;
     Age?: number;
     Temperment?: string;
-    Last_Cut?: string;
+    Planned_Frequency?: string;
+    Style?: string;
     Client?: Client0;
 };
 export declare type DogUpdateFormValidationValues = {
@@ -26,7 +27,8 @@ export declare type DogUpdateFormValidationValues = {
     Breed?: ValidationFunction<string>;
     Age?: ValidationFunction<number>;
     Temperment?: ValidationFunction<string>;
-    Last_Cut?: ValidationFunction<string>;
+    Planned_Frequency?: ValidationFunction<string>;
+    Style?: ValidationFunction<string>;
     Client?: ValidationFunction<Client0>;
 };
 export declare type PrimitiveOverrideProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
@@ -36,7 +38,8 @@ export declare type DogUpdateFormOverridesProps = {
     Breed?: PrimitiveOverrideProps<TextFieldProps>;
     Age?: PrimitiveOverrideProps<TextFieldProps>;
     Temperment?: PrimitiveOverrideProps<TextFieldProps>;
-    Last_Cut?: PrimitiveOverrideProps<TextFieldProps>;
+    Planned_Frequency?: PrimitiveOverrideProps<TextFieldProps>;
+    Style?: PrimitiveOverrideProps<TextFieldProps>;
     Client?: PrimitiveOverrideProps<AutocompleteProps>;
 } & EscapeHatchProps;
 export declare type DogUpdateFormProps = React.PropsWithChildren<{

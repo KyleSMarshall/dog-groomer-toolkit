@@ -23,7 +23,7 @@ import {
   getOverrideProps,
   useDataStoreBinding,
 } from "@aws-amplify/ui-react/internal";
-import { Event, Client as Client0, Dog as Dog0 } from "../models";
+import { Event, Dog as Dog0 } from "../models";
 import { fetchByPath, validateField } from "./utils";
 import { DataStore } from "aws-amplify";
 function ArrayField({
@@ -195,27 +195,28 @@ export default function EventUpdateForm(props) {
   } = props;
   const initialValues = {
     Time_Start: "",
-    Client: undefined,
     Dog: undefined,
     Time_End: "",
+    Type: "",
+    Comments: "",
   };
   const [Time_Start, setTime_Start] = React.useState(initialValues.Time_Start);
-  const [Client, setClient] = React.useState(initialValues.Client);
   const [Dog, setDog] = React.useState(initialValues.Dog);
   const [Time_End, setTime_End] = React.useState(initialValues.Time_End);
+  const [Type, setType] = React.useState(initialValues.Type);
+  const [Comments, setComments] = React.useState(initialValues.Comments);
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
     const cleanValues = eventRecord
-      ? { ...initialValues, ...eventRecord, Client, Dog }
+      ? { ...initialValues, ...eventRecord, Dog }
       : initialValues;
     setTime_Start(cleanValues.Time_Start);
-    setClient(cleanValues.Client);
-    setCurrentClientValue(undefined);
-    setCurrentClientDisplayValue("");
     setDog(cleanValues.Dog);
     setCurrentDogValue(undefined);
     setCurrentDogDisplayValue("");
     setTime_End(cleanValues.Time_End);
+    setType(cleanValues.Type);
+    setComments(cleanValues.Comments);
     setErrors({});
   };
   const [eventRecord, setEventRecord] = React.useState(eventModelProp);
@@ -225,53 +226,37 @@ export default function EventUpdateForm(props) {
         ? await DataStore.query(Event, idProp)
         : eventModelProp;
       setEventRecord(record);
-      const ClientRecord = record ? await record.Client : undefined;
-      setClient(ClientRecord);
       const DogRecord = record ? await record.Dog : undefined;
       setDog(DogRecord);
     };
     queryData();
   }, [idProp, eventModelProp]);
-  React.useEffect(resetStateValues, [eventRecord, Client, Dog]);
-  const [currentClientDisplayValue, setCurrentClientDisplayValue] =
-    React.useState("");
-  const [currentClientValue, setCurrentClientValue] = React.useState(undefined);
-  const ClientRef = React.createRef();
+  React.useEffect(resetStateValues, [eventRecord, Dog]);
   const [currentDogDisplayValue, setCurrentDogDisplayValue] =
     React.useState("");
   const [currentDogValue, setCurrentDogValue] = React.useState(undefined);
   const DogRef = React.createRef();
   const getIDValue = {
-    Client: (r) => JSON.stringify({ id: r?.id }),
     Dog: (r) => JSON.stringify({ id: r?.id }),
   };
-  const ClientIdSet = new Set(
-    Array.isArray(Client)
-      ? Client.map((r) => getIDValue.Client?.(r))
-      : getIDValue.Client?.(Client)
-  );
   const DogIdSet = new Set(
     Array.isArray(Dog)
       ? Dog.map((r) => getIDValue.Dog?.(r))
       : getIDValue.Dog?.(Dog)
   );
-  const clientRecords = useDataStoreBinding({
-    type: "collection",
-    model: Client0,
-  }).items;
   const dogRecords = useDataStoreBinding({
     type: "collection",
     model: Dog0,
   }).items;
   const getDisplayValue = {
-    Client: (r) => `${r?.Name ? r?.Name + " - " : ""}${r?.id}`,
     Dog: (r) => `${r?.Name ? r?.Name + " - " : ""}${r?.id}`,
   };
   const validations = {
-    Time_Start: [],
-    Client: [],
-    Dog: [],
-    Time_End: [],
+    Time_Start: [{ type: "Required" }],
+    Dog: [{ type: "Required", validationMessage: "Dog is required." }],
+    Time_End: [{ type: "Required" }],
+    Type: [{ type: "Required" }],
+    Comments: [],
   };
   const runValidationTasks = async (
     fieldName,
@@ -317,9 +302,10 @@ export default function EventUpdateForm(props) {
         event.preventDefault();
         let modelFields = {
           Time_Start,
-          Client,
           Dog,
           Time_End,
+          Type,
+          Comments,
         };
         const validationResponses = await Promise.all(
           Object.keys(validations).reduce((promises, fieldName) => {
@@ -360,9 +346,6 @@ export default function EventUpdateForm(props) {
           await DataStore.save(
             Event.copyOf(eventRecord, (updated) => {
               Object.assign(updated, modelFields);
-              if (!modelFields.Client) {
-                updated.eventClientId = undefined;
-              }
               if (!modelFields.Dog) {
                 updated.eventDogId = undefined;
               }
@@ -382,7 +365,7 @@ export default function EventUpdateForm(props) {
     >
       <TextField
         label="Time start"
-        isRequired={false}
+        isRequired={true}
         isReadOnly={false}
         type="datetime-local"
         value={Time_Start && convertToLocal(new Date(Time_Start))}
@@ -392,9 +375,10 @@ export default function EventUpdateForm(props) {
           if (onChange) {
             const modelFields = {
               Time_Start: value,
-              Client,
               Dog,
               Time_End,
+              Type,
+              Comments,
             };
             const result = onChange(modelFields);
             value = result?.Time_Start ?? value;
@@ -416,88 +400,10 @@ export default function EventUpdateForm(props) {
           if (onChange) {
             const modelFields = {
               Time_Start,
-              Client: value,
-              Dog,
-              Time_End,
-            };
-            const result = onChange(modelFields);
-            value = result?.Client ?? value;
-          }
-          setClient(value);
-          setCurrentClientValue(undefined);
-          setCurrentClientDisplayValue("");
-        }}
-        currentFieldValue={currentClientValue}
-        label={"Client"}
-        items={Client ? [Client] : []}
-        hasError={errors?.Client?.hasError}
-        runValidationTasks={async () =>
-          await runValidationTasks("Client", currentClientValue)
-        }
-        errorMessage={errors?.Client?.errorMessage}
-        getBadgeText={getDisplayValue.Client}
-        setFieldValue={(model) => {
-          setCurrentClientDisplayValue(
-            model ? getDisplayValue.Client(model) : ""
-          );
-          setCurrentClientValue(model);
-        }}
-        inputFieldRef={ClientRef}
-        defaultFieldValue={""}
-      >
-        <Autocomplete
-          label="Client"
-          isRequired={false}
-          isReadOnly={false}
-          placeholder="Search Client"
-          value={currentClientDisplayValue}
-          options={clientRecords
-            .filter((r) => !ClientIdSet.has(getIDValue.Client?.(r)))
-            .map((r) => ({
-              id: getIDValue.Client?.(r),
-              label: getDisplayValue.Client?.(r),
-            }))}
-          onSelect={({ id, label }) => {
-            setCurrentClientValue(
-              clientRecords.find((r) =>
-                Object.entries(JSON.parse(id)).every(
-                  ([key, value]) => r[key] === value
-                )
-              )
-            );
-            setCurrentClientDisplayValue(label);
-            runValidationTasks("Client", label);
-          }}
-          onClear={() => {
-            setCurrentClientDisplayValue("");
-          }}
-          defaultValue={Client}
-          onChange={(e) => {
-            let { value } = e.target;
-            if (errors.Client?.hasError) {
-              runValidationTasks("Client", value);
-            }
-            setCurrentClientDisplayValue(value);
-            setCurrentClientValue(undefined);
-          }}
-          onBlur={() => runValidationTasks("Client", currentClientDisplayValue)}
-          errorMessage={errors.Client?.errorMessage}
-          hasError={errors.Client?.hasError}
-          ref={ClientRef}
-          labelHidden={true}
-          {...getOverrideProps(overrides, "Client")}
-        ></Autocomplete>
-      </ArrayField>
-      <ArrayField
-        lengthLimit={1}
-        onChange={async (items) => {
-          let value = items[0];
-          if (onChange) {
-            const modelFields = {
-              Time_Start,
-              Client,
               Dog: value,
               Time_End,
+              Type,
+              Comments,
             };
             const result = onChange(modelFields);
             value = result?.Dog ?? value;
@@ -524,7 +430,7 @@ export default function EventUpdateForm(props) {
       >
         <Autocomplete
           label="Dog"
-          isRequired={false}
+          isRequired={true}
           isReadOnly={false}
           placeholder="Search Dog"
           value={currentDogDisplayValue}
@@ -567,7 +473,7 @@ export default function EventUpdateForm(props) {
       </ArrayField>
       <TextField
         label="Time end"
-        isRequired={false}
+        isRequired={true}
         isReadOnly={false}
         type="datetime-local"
         value={Time_End && convertToLocal(new Date(Time_End))}
@@ -577,9 +483,10 @@ export default function EventUpdateForm(props) {
           if (onChange) {
             const modelFields = {
               Time_Start,
-              Client,
               Dog,
               Time_End: value,
+              Type,
+              Comments,
             };
             const result = onChange(modelFields);
             value = result?.Time_End ?? value;
@@ -593,6 +500,62 @@ export default function EventUpdateForm(props) {
         errorMessage={errors.Time_End?.errorMessage}
         hasError={errors.Time_End?.hasError}
         {...getOverrideProps(overrides, "Time_End")}
+      ></TextField>
+      <TextField
+        label="Type"
+        isRequired={true}
+        isReadOnly={false}
+        value={Type}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              Time_Start,
+              Dog,
+              Time_End,
+              Type: value,
+              Comments,
+            };
+            const result = onChange(modelFields);
+            value = result?.Type ?? value;
+          }
+          if (errors.Type?.hasError) {
+            runValidationTasks("Type", value);
+          }
+          setType(value);
+        }}
+        onBlur={() => runValidationTasks("Type", Type)}
+        errorMessage={errors.Type?.errorMessage}
+        hasError={errors.Type?.hasError}
+        {...getOverrideProps(overrides, "Type")}
+      ></TextField>
+      <TextField
+        label="Comments"
+        isRequired={false}
+        isReadOnly={false}
+        value={Comments}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              Time_Start,
+              Dog,
+              Time_End,
+              Type,
+              Comments: value,
+            };
+            const result = onChange(modelFields);
+            value = result?.Comments ?? value;
+          }
+          if (errors.Comments?.hasError) {
+            runValidationTasks("Comments", value);
+          }
+          setComments(value);
+        }}
+        onBlur={() => runValidationTasks("Comments", Comments)}
+        errorMessage={errors.Comments?.errorMessage}
+        hasError={errors.Comments?.hasError}
+        {...getOverrideProps(overrides, "Comments")}
       ></TextField>
       <Flex
         justifyContent="space-between"

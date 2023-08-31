@@ -199,14 +199,18 @@ export default function DogUpdateForm(props) {
     Breed: "",
     Age: "",
     Temperment: "",
-    Last_Cut: "",
+    Planned_Frequency: "",
+    Style: "",
     Client: undefined,
   };
   const [Name, setName] = React.useState(initialValues.Name);
   const [Breed, setBreed] = React.useState(initialValues.Breed);
   const [Age, setAge] = React.useState(initialValues.Age);
   const [Temperment, setTemperment] = React.useState(initialValues.Temperment);
-  const [Last_Cut, setLast_Cut] = React.useState(initialValues.Last_Cut);
+  const [Planned_Frequency, setPlanned_Frequency] = React.useState(
+    initialValues.Planned_Frequency
+  );
+  const [Style, setStyle] = React.useState(initialValues.Style);
   const [Client, setClient] = React.useState(initialValues.Client);
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
@@ -217,7 +221,8 @@ export default function DogUpdateForm(props) {
     setBreed(cleanValues.Breed);
     setAge(cleanValues.Age);
     setTemperment(cleanValues.Temperment);
-    setLast_Cut(cleanValues.Last_Cut);
+    setPlanned_Frequency(cleanValues.Planned_Frequency);
+    setStyle(cleanValues.Style);
     setClient(cleanValues.Client);
     setCurrentClientValue(undefined);
     setCurrentClientDisplayValue("");
@@ -258,7 +263,8 @@ export default function DogUpdateForm(props) {
     Breed: [{ type: "Required" }],
     Age: [{ type: "Required" }],
     Temperment: [],
-    Last_Cut: [],
+    Planned_Frequency: [],
+    Style: [],
     Client: [{ type: "Required", validationMessage: "Client is required." }],
   };
   const runValidationTasks = async (
@@ -291,7 +297,8 @@ export default function DogUpdateForm(props) {
           Breed,
           Age,
           Temperment,
-          Last_Cut,
+          Planned_Frequency,
+          Style,
           Client,
         };
         const validationResponses = await Promise.all(
@@ -334,7 +341,7 @@ export default function DogUpdateForm(props) {
             Dog.copyOf(dogRecord, (updated) => {
               Object.assign(updated, modelFields);
               if (!modelFields.Client) {
-                updated.clientID = undefined;
+                updated.dogClientId = undefined;
               }
             })
           );
@@ -368,7 +375,8 @@ export default function DogUpdateForm(props) {
               Breed,
               Age,
               Temperment,
-              Last_Cut,
+              Planned_Frequency,
+              Style,
               Client,
             };
             const result = onChange(modelFields);
@@ -402,7 +410,8 @@ export default function DogUpdateForm(props) {
               Breed: value,
               Age,
               Temperment,
-              Last_Cut,
+              Planned_Frequency,
+              Style,
               Client,
             };
             const result = onChange(modelFields);
@@ -440,7 +449,8 @@ export default function DogUpdateForm(props) {
               Breed,
               Age: value,
               Temperment,
-              Last_Cut,
+              Planned_Frequency,
+              Style,
               Client,
             };
             const result = onChange(modelFields);
@@ -469,7 +479,8 @@ export default function DogUpdateForm(props) {
               Breed,
               Age,
               Temperment: value,
-              Last_Cut,
+              Planned_Frequency,
+              Style,
               Client,
             };
             const result = onChange(modelFields);
@@ -486,11 +497,10 @@ export default function DogUpdateForm(props) {
         {...getOverrideProps(overrides, "Temperment")}
       ></TextField>
       <TextField
-        label="Last cut"
+        label="Planned frequency"
         isRequired={false}
         isReadOnly={false}
-        type="date"
-        value={Last_Cut}
+        value={Planned_Frequency}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
@@ -499,21 +509,54 @@ export default function DogUpdateForm(props) {
               Breed,
               Age,
               Temperment,
-              Last_Cut: value,
+              Planned_Frequency: value,
+              Style,
               Client,
             };
             const result = onChange(modelFields);
-            value = result?.Last_Cut ?? value;
+            value = result?.Planned_Frequency ?? value;
           }
-          if (errors.Last_Cut?.hasError) {
-            runValidationTasks("Last_Cut", value);
+          if (errors.Planned_Frequency?.hasError) {
+            runValidationTasks("Planned_Frequency", value);
           }
-          setLast_Cut(value);
+          setPlanned_Frequency(value);
         }}
-        onBlur={() => runValidationTasks("Last_Cut", Last_Cut)}
-        errorMessage={errors.Last_Cut?.errorMessage}
-        hasError={errors.Last_Cut?.hasError}
-        {...getOverrideProps(overrides, "Last_Cut")}
+        onBlur={() =>
+          runValidationTasks("Planned_Frequency", Planned_Frequency)
+        }
+        errorMessage={errors.Planned_Frequency?.errorMessage}
+        hasError={errors.Planned_Frequency?.hasError}
+        {...getOverrideProps(overrides, "Planned_Frequency")}
+      ></TextField>
+      <TextField
+        label="Style"
+        isRequired={false}
+        isReadOnly={false}
+        value={Style}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              Name,
+              Breed,
+              Age,
+              Temperment,
+              Planned_Frequency,
+              Style: value,
+              Client,
+            };
+            const result = onChange(modelFields);
+            value = result?.Style ?? value;
+          }
+          if (errors.Style?.hasError) {
+            runValidationTasks("Style", value);
+          }
+          setStyle(value);
+        }}
+        onBlur={() => runValidationTasks("Style", Style)}
+        errorMessage={errors.Style?.errorMessage}
+        hasError={errors.Style?.hasError}
+        {...getOverrideProps(overrides, "Style")}
       ></TextField>
       <ArrayField
         lengthLimit={1}
@@ -525,7 +568,8 @@ export default function DogUpdateForm(props) {
               Breed,
               Age,
               Temperment,
-              Last_Cut,
+              Planned_Frequency,
+              Style,
               Client: value,
             };
             const result = onChange(modelFields);

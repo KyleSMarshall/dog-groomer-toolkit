@@ -14,26 +14,8 @@ export const schema = {
                     "name": "Time_Start",
                     "isArray": false,
                     "type": "AWSDateTime",
-                    "isRequired": false,
+                    "isRequired": true,
                     "attributes": []
-                },
-                "Client": {
-                    "name": "Client",
-                    "isArray": false,
-                    "type": {
-                        "model": "Client"
-                    },
-                    "isRequired": false,
-                    "attributes": [],
-                    "association": {
-                        "connectionType": "HAS_ONE",
-                        "associatedWith": [
-                            "id"
-                        ],
-                        "targetNames": [
-                            "eventClientId"
-                        ]
-                    }
                 },
                 "Dog": {
                     "name": "Dog",
@@ -41,7 +23,7 @@ export const schema = {
                     "type": {
                         "model": "Dog"
                     },
-                    "isRequired": false,
+                    "isRequired": true,
                     "attributes": [],
                     "association": {
                         "connectionType": "HAS_ONE",
@@ -57,6 +39,20 @@ export const schema = {
                     "name": "Time_End",
                     "isArray": false,
                     "type": "AWSDateTime",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "Type": {
+                    "name": "Type",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "Comments": {
+                    "name": "Comments",
+                    "isArray": false,
+                    "type": "String",
                     "isRequired": false,
                     "attributes": []
                 },
@@ -76,18 +72,11 @@ export const schema = {
                     "attributes": [],
                     "isReadOnly": true
                 },
-                "eventClientId": {
-                    "name": "eventClientId",
-                    "isArray": false,
-                    "type": "ID",
-                    "isRequired": false,
-                    "attributes": []
-                },
                 "eventDogId": {
                     "name": "eventDogId",
                     "isArray": false,
                     "type": "ID",
-                    "isRequired": false,
+                    "isRequired": true,
                     "attributes": []
                 }
             },
@@ -130,14 +119,14 @@ export const schema = {
                     "name": "Name",
                     "isArray": false,
                     "type": "String",
-                    "isRequired": false,
+                    "isRequired": true,
                     "attributes": []
                 },
                 "Phone_Number": {
                     "name": "Phone_Number",
                     "isArray": false,
                     "type": "String",
-                    "isRequired": false,
+                    "isRequired": true,
                     "attributes": []
                 },
                 "Client_Since": {
@@ -146,22 +135,6 @@ export const schema = {
                     "type": "AWSDate",
                     "isRequired": false,
                     "attributes": []
-                },
-                "Dogs": {
-                    "name": "Dogs",
-                    "isArray": true,
-                    "type": {
-                        "model": "Dog"
-                    },
-                    "isRequired": false,
-                    "attributes": [],
-                    "isArrayNullable": true,
-                    "association": {
-                        "connectionType": "HAS_MANY",
-                        "associatedWith": [
-                            "Client"
-                        ]
-                    }
                 },
                 "createdAt": {
                     "name": "createdAt",
@@ -219,14 +192,14 @@ export const schema = {
                     "name": "Name",
                     "isArray": false,
                     "type": "String",
-                    "isRequired": false,
+                    "isRequired": true,
                     "attributes": []
                 },
                 "Breed": {
                     "name": "Breed",
                     "isArray": false,
                     "type": "String",
-                    "isRequired": false,
+                    "isRequired": true,
                     "attributes": []
                 },
                 "Age": {
@@ -243,18 +216,18 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
-                "Last_Cut": {
-                    "name": "Last_Cut",
+                "Planned_Frequency": {
+                    "name": "Planned_Frequency",
                     "isArray": false,
-                    "type": "AWSDate",
+                    "type": "String",
                     "isRequired": false,
                     "attributes": []
                 },
-                "clientID": {
-                    "name": "clientID",
+                "Style": {
+                    "name": "Style",
                     "isArray": false,
-                    "type": "ID",
-                    "isRequired": true,
+                    "type": "String",
+                    "isRequired": false,
                     "attributes": []
                 },
                 "Client": {
@@ -263,12 +236,15 @@ export const schema = {
                     "type": {
                         "model": "Client"
                     },
-                    "isRequired": false,
+                    "isRequired": true,
                     "attributes": [],
                     "association": {
-                        "connectionType": "BELONGS_TO",
+                        "connectionType": "HAS_ONE",
+                        "associatedWith": [
+                            "id"
+                        ],
                         "targetNames": [
-                            "clientID"
+                            "dogClientId"
                         ]
                     }
                 },
@@ -287,6 +263,13 @@ export const schema = {
                     "isRequired": false,
                     "attributes": [],
                     "isReadOnly": true
+                },
+                "dogClientId": {
+                    "name": "dogClientId",
+                    "isArray": false,
+                    "type": "ID",
+                    "isRequired": true,
+                    "attributes": []
                 }
             },
             "syncable": true,
@@ -295,15 +278,6 @@ export const schema = {
                 {
                     "type": "model",
                     "properties": {}
-                },
-                {
-                    "type": "key",
-                    "properties": {
-                        "name": "byClient",
-                        "fields": [
-                            "clientID"
-                        ]
-                    }
                 },
                 {
                     "type": "auth",
@@ -327,5 +301,5 @@ export const schema = {
     "enums": {},
     "nonModels": {},
     "codegenVersion": "3.4.4",
-    "version": "514caa3f72e3efb565e424280d187e8c"
+    "version": "1ddf8e1e7e017a938c535cae8fb78831"
 };

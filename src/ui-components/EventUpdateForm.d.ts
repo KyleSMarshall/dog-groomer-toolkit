@@ -7,7 +7,7 @@
 import * as React from "react";
 import { AutocompleteProps, GridProps, TextFieldProps } from "@aws-amplify/ui-react";
 import { EscapeHatchProps } from "@aws-amplify/ui-react/internal";
-import { Event, Client as Client0, Dog as Dog0 } from "../models";
+import { Event, Dog as Dog0 } from "../models";
 export declare type ValidationResponse = {
     hasError: boolean;
     errorMessage?: string;
@@ -15,23 +15,26 @@ export declare type ValidationResponse = {
 export declare type ValidationFunction<T> = (value: T, validationResponse: ValidationResponse) => ValidationResponse | Promise<ValidationResponse>;
 export declare type EventUpdateFormInputValues = {
     Time_Start?: string;
-    Client?: Client0;
     Dog?: Dog0;
     Time_End?: string;
+    Type?: string;
+    Comments?: string;
 };
 export declare type EventUpdateFormValidationValues = {
     Time_Start?: ValidationFunction<string>;
-    Client?: ValidationFunction<Client0>;
     Dog?: ValidationFunction<Dog0>;
     Time_End?: ValidationFunction<string>;
+    Type?: ValidationFunction<string>;
+    Comments?: ValidationFunction<string>;
 };
 export declare type PrimitiveOverrideProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
 export declare type EventUpdateFormOverridesProps = {
     EventUpdateFormGrid?: PrimitiveOverrideProps<GridProps>;
     Time_Start?: PrimitiveOverrideProps<TextFieldProps>;
-    Client?: PrimitiveOverrideProps<AutocompleteProps>;
     Dog?: PrimitiveOverrideProps<AutocompleteProps>;
     Time_End?: PrimitiveOverrideProps<TextFieldProps>;
+    Type?: PrimitiveOverrideProps<TextFieldProps>;
+    Comments?: PrimitiveOverrideProps<TextFieldProps>;
 } & EscapeHatchProps;
 export declare type EventUpdateFormProps = React.PropsWithChildren<{
     overrides?: EventUpdateFormOverridesProps | undefined | null;

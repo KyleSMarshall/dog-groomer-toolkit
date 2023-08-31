@@ -1,6 +1,6 @@
 import { ModelInit, MutableModel, __modelMeta__, ManagedIdentifier } from "@aws-amplify/datastore";
 // @ts-ignore
-import { LazyLoading, LazyLoadingDisabled, AsyncItem, AsyncCollection } from "@aws-amplify/datastore";
+import { LazyLoading, LazyLoadingDisabled, AsyncItem } from "@aws-amplify/datastore";
 
 
 
@@ -12,14 +12,14 @@ type EagerEvent = {
     readOnlyFields: 'createdAt' | 'updatedAt';
   };
   readonly id: string;
-  readonly Time_Start?: string | null;
-  readonly Client?: Client | null;
-  readonly Dog?: Dog | null;
-  readonly Time_End?: string | null;
+  readonly Time_Start: string;
+  readonly Dog: Dog;
+  readonly Time_End: string;
+  readonly Type: string;
+  readonly Comments?: string | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
-  readonly eventClientId?: string | null;
-  readonly eventDogId?: string | null;
+  readonly eventDogId: string;
 }
 
 type LazyEvent = {
@@ -28,14 +28,14 @@ type LazyEvent = {
     readOnlyFields: 'createdAt' | 'updatedAt';
   };
   readonly id: string;
-  readonly Time_Start?: string | null;
-  readonly Client: AsyncItem<Client | undefined>;
-  readonly Dog: AsyncItem<Dog | undefined>;
-  readonly Time_End?: string | null;
+  readonly Time_Start: string;
+  readonly Dog: AsyncItem<Dog>;
+  readonly Time_End: string;
+  readonly Type: string;
+  readonly Comments?: string | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
-  readonly eventClientId?: string | null;
-  readonly eventDogId?: string | null;
+  readonly eventDogId: string;
 }
 
 export declare type Event = LazyLoading extends LazyLoadingDisabled ? EagerEvent : LazyEvent
@@ -50,10 +50,9 @@ type EagerClient = {
     readOnlyFields: 'createdAt' | 'updatedAt';
   };
   readonly id: string;
-  readonly Name?: string | null;
-  readonly Phone_Number?: string | null;
+  readonly Name: string;
+  readonly Phone_Number: string;
   readonly Client_Since?: string | null;
-  readonly Dogs?: (Dog | null)[] | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
 }
@@ -64,10 +63,9 @@ type LazyClient = {
     readOnlyFields: 'createdAt' | 'updatedAt';
   };
   readonly id: string;
-  readonly Name?: string | null;
-  readonly Phone_Number?: string | null;
+  readonly Name: string;
+  readonly Phone_Number: string;
   readonly Client_Since?: string | null;
-  readonly Dogs: AsyncCollection<Dog>;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
 }
@@ -84,15 +82,16 @@ type EagerDog = {
     readOnlyFields: 'createdAt' | 'updatedAt';
   };
   readonly id: string;
-  readonly Name?: string | null;
-  readonly Breed?: string | null;
+  readonly Name: string;
+  readonly Breed: string;
   readonly Age?: number | null;
   readonly Temperment?: string | null;
-  readonly Last_Cut?: string | null;
-  readonly clientID: string;
-  readonly Client?: Client | null;
+  readonly Planned_Frequency?: string | null;
+  readonly Style?: string | null;
+  readonly Client: Client;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
+  readonly dogClientId: string;
 }
 
 type LazyDog = {
@@ -101,15 +100,16 @@ type LazyDog = {
     readOnlyFields: 'createdAt' | 'updatedAt';
   };
   readonly id: string;
-  readonly Name?: string | null;
-  readonly Breed?: string | null;
+  readonly Name: string;
+  readonly Breed: string;
   readonly Age?: number | null;
   readonly Temperment?: string | null;
-  readonly Last_Cut?: string | null;
-  readonly clientID: string;
-  readonly Client: AsyncItem<Client | undefined>;
+  readonly Planned_Frequency?: string | null;
+  readonly Style?: string | null;
+  readonly Client: AsyncItem<Client>;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
+  readonly dogClientId: string;
 }
 
 export declare type Dog = LazyLoading extends LazyLoadingDisabled ? EagerDog : LazyDog

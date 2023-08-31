@@ -6,181 +6,11 @@
 
 /* eslint-disable */
 import * as React from "react";
-import {
-  Autocomplete,
-  Badge,
-  Button,
-  Divider,
-  Flex,
-  Grid,
-  Icon,
-  ScrollView,
-  Text,
-  TextField,
-  useTheme,
-} from "@aws-amplify/ui-react";
-import {
-  getOverrideProps,
-  useDataStoreBinding,
-} from "@aws-amplify/ui-react/internal";
-import { Client, Dog } from "../models";
+import { Button, Flex, Grid, TextField } from "@aws-amplify/ui-react";
+import { getOverrideProps } from "@aws-amplify/ui-react/internal";
+import { Client } from "../models";
 import { fetchByPath, validateField } from "./utils";
 import { DataStore } from "aws-amplify";
-function ArrayField({
-  items = [],
-  onChange,
-  label,
-  inputFieldRef,
-  children,
-  hasError,
-  setFieldValue,
-  currentFieldValue,
-  defaultFieldValue,
-  lengthLimit,
-  getBadgeText,
-  runValidationTasks,
-  errorMessage,
-}) {
-  const labelElement = <Text>{label}</Text>;
-  const {
-    tokens: {
-      components: {
-        fieldmessages: { error: errorStyles },
-      },
-    },
-  } = useTheme();
-  const [selectedBadgeIndex, setSelectedBadgeIndex] = React.useState();
-  const [isEditing, setIsEditing] = React.useState();
-  React.useEffect(() => {
-    if (isEditing) {
-      inputFieldRef?.current?.focus();
-    }
-  }, [isEditing]);
-  const removeItem = async (removeIndex) => {
-    const newItems = items.filter((value, index) => index !== removeIndex);
-    await onChange(newItems);
-    setSelectedBadgeIndex(undefined);
-  };
-  const addItem = async () => {
-    const { hasError } = runValidationTasks();
-    if (
-      currentFieldValue !== undefined &&
-      currentFieldValue !== null &&
-      currentFieldValue !== "" &&
-      !hasError
-    ) {
-      const newItems = [...items];
-      if (selectedBadgeIndex !== undefined) {
-        newItems[selectedBadgeIndex] = currentFieldValue;
-        setSelectedBadgeIndex(undefined);
-      } else {
-        newItems.push(currentFieldValue);
-      }
-      await onChange(newItems);
-      setIsEditing(false);
-    }
-  };
-  const arraySection = (
-    <React.Fragment>
-      {!!items?.length && (
-        <ScrollView height="inherit" width="inherit" maxHeight={"7rem"}>
-          {items.map((value, index) => {
-            return (
-              <Badge
-                key={index}
-                style={{
-                  cursor: "pointer",
-                  alignItems: "center",
-                  marginRight: 3,
-                  marginTop: 3,
-                  backgroundColor:
-                    index === selectedBadgeIndex ? "#B8CEF9" : "",
-                }}
-                onClick={() => {
-                  setSelectedBadgeIndex(index);
-                  setFieldValue(items[index]);
-                  setIsEditing(true);
-                }}
-              >
-                {getBadgeText ? getBadgeText(value) : value.toString()}
-                <Icon
-                  style={{
-                    cursor: "pointer",
-                    paddingLeft: 3,
-                    width: 20,
-                    height: 20,
-                  }}
-                  viewBox={{ width: 20, height: 20 }}
-                  paths={[
-                    {
-                      d: "M10 10l5.09-5.09L10 10l5.09 5.09L10 10zm0 0L4.91 4.91 10 10l-5.09 5.09L10 10z",
-                      stroke: "black",
-                    },
-                  ]}
-                  ariaLabel="button"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    removeItem(index);
-                  }}
-                />
-              </Badge>
-            );
-          })}
-        </ScrollView>
-      )}
-      <Divider orientation="horizontal" marginTop={5} />
-    </React.Fragment>
-  );
-  if (lengthLimit !== undefined && items.length >= lengthLimit && !isEditing) {
-    return (
-      <React.Fragment>
-        {labelElement}
-        {arraySection}
-      </React.Fragment>
-    );
-  }
-  return (
-    <React.Fragment>
-      {labelElement}
-      {isEditing && children}
-      {!isEditing ? (
-        <>
-          <Button
-            onClick={() => {
-              setIsEditing(true);
-            }}
-          >
-            Add item
-          </Button>
-          {errorMessage && hasError && (
-            <Text color={errorStyles.color} fontSize={errorStyles.fontSize}>
-              {errorMessage}
-            </Text>
-          )}
-        </>
-      ) : (
-        <Flex justifyContent="flex-end">
-          {(currentFieldValue || isEditing) && (
-            <Button
-              children="Cancel"
-              type="button"
-              size="small"
-              onClick={() => {
-                setFieldValue(defaultFieldValue);
-                setIsEditing(false);
-                setSelectedBadgeIndex(undefined);
-              }}
-            ></Button>
-          )}
-          <Button size="small" variation="link" onClick={addItem}>
-            {selectedBadgeIndex !== undefined ? "Save" : "Add"}
-          </Button>
-        </Flex>
-      )}
-      {arraySection}
-    </React.Fragment>
-  );
-}
 export default function ClientUpdateForm(props) {
   const {
     id: idProp,
@@ -198,7 +28,6 @@ export default function ClientUpdateForm(props) {
     Name: "",
     Phone_Number: "",
     Client_Since: "",
-    Dogs: [],
   };
   const [Name, setName] = React.useState(initialValues.Name);
   const [Phone_Number, setPhone_Number] = React.useState(
@@ -207,59 +36,31 @@ export default function ClientUpdateForm(props) {
   const [Client_Since, setClient_Since] = React.useState(
     initialValues.Client_Since
   );
-  const [Dogs, setDogs] = React.useState(initialValues.Dogs);
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
     const cleanValues = clientRecord
-      ? { ...initialValues, ...clientRecord, Dogs: linkedDogs }
+      ? { ...initialValues, ...clientRecord }
       : initialValues;
     setName(cleanValues.Name);
     setPhone_Number(cleanValues.Phone_Number);
     setClient_Since(cleanValues.Client_Since);
-    setDogs(cleanValues.Dogs ?? []);
-    setCurrentDogsValue(undefined);
-    setCurrentDogsDisplayValue("");
     setErrors({});
   };
   const [clientRecord, setClientRecord] = React.useState(clientModelProp);
-  const [linkedDogs, setLinkedDogs] = React.useState([]);
-  const canUnlinkDogs = true;
   React.useEffect(() => {
     const queryData = async () => {
       const record = idProp
         ? await DataStore.query(Client, idProp)
         : clientModelProp;
       setClientRecord(record);
-      const linkedDogs = record ? await record.Dogs.toArray() : [];
-      setLinkedDogs(linkedDogs);
     };
     queryData();
   }, [idProp, clientModelProp]);
-  React.useEffect(resetStateValues, [clientRecord, linkedDogs]);
-  const [currentDogsDisplayValue, setCurrentDogsDisplayValue] =
-    React.useState("");
-  const [currentDogsValue, setCurrentDogsValue] = React.useState(undefined);
-  const DogsRef = React.createRef();
-  const getIDValue = {
-    Dogs: (r) => JSON.stringify({ id: r?.id }),
-  };
-  const DogsIdSet = new Set(
-    Array.isArray(Dogs)
-      ? Dogs.map((r) => getIDValue.Dogs?.(r))
-      : getIDValue.Dogs?.(Dogs)
-  );
-  const dogRecords = useDataStoreBinding({
-    type: "collection",
-    model: Dog,
-  }).items;
-  const getDisplayValue = {
-    Dogs: (r) => `${r?.Name ? r?.Name + " - " : ""}${r?.id}`,
-  };
+  React.useEffect(resetStateValues, [clientRecord]);
   const validations = {
     Name: [{ type: "Required" }],
     Phone_Number: [{ type: "Required" }],
     Client_Since: [],
-    Dogs: [],
   };
   const runValidationTasks = async (
     fieldName,
@@ -290,28 +91,19 @@ export default function ClientUpdateForm(props) {
           Name,
           Phone_Number,
           Client_Since,
-          Dogs,
         };
         const validationResponses = await Promise.all(
           Object.keys(validations).reduce((promises, fieldName) => {
             if (Array.isArray(modelFields[fieldName])) {
               promises.push(
                 ...modelFields[fieldName].map((item) =>
-                  runValidationTasks(
-                    fieldName,
-                    item,
-                    getDisplayValue[fieldName]
-                  )
+                  runValidationTasks(fieldName, item)
                 )
               );
               return promises;
             }
             promises.push(
-              runValidationTasks(
-                fieldName,
-                modelFields[fieldName],
-                getDisplayValue[fieldName]
-              )
+              runValidationTasks(fieldName, modelFields[fieldName])
             );
             return promises;
           }, [])
@@ -328,59 +120,11 @@ export default function ClientUpdateForm(props) {
               modelFields[key] = null;
             }
           });
-          const promises = [];
-          const dogsToLink = [];
-          const dogsToUnLink = [];
-          const dogsSet = new Set();
-          const linkedDogsSet = new Set();
-          Dogs.forEach((r) => dogsSet.add(getIDValue.Dogs?.(r)));
-          linkedDogs.forEach((r) => linkedDogsSet.add(getIDValue.Dogs?.(r)));
-          linkedDogs.forEach((r) => {
-            if (!dogsSet.has(getIDValue.Dogs?.(r))) {
-              dogsToUnLink.push(r);
-            }
-          });
-          Dogs.forEach((r) => {
-            if (!linkedDogsSet.has(getIDValue.Dogs?.(r))) {
-              dogsToLink.push(r);
-            }
-          });
-          dogsToUnLink.forEach((original) => {
-            if (!canUnlinkDogs) {
-              throw Error(
-                `Dog ${original.id} cannot be unlinked from Client because undefined is a required field.`
-              );
-            }
-            promises.push(
-              DataStore.save(
-                Dog.copyOf(original, (updated) => {
-                  updated.Client = null;
-                })
-              )
-            );
-          });
-          dogsToLink.forEach((original) => {
-            promises.push(
-              DataStore.save(
-                Dog.copyOf(original, (updated) => {
-                  updated.Client = clientRecord;
-                })
-              )
-            );
-          });
-          const modelFieldsToSave = {
-            Name: modelFields.Name,
-            Phone_Number: modelFields.Phone_Number,
-            Client_Since: modelFields.Client_Since,
-          };
-          promises.push(
-            DataStore.save(
-              Client.copyOf(clientRecord, (updated) => {
-                Object.assign(updated, modelFieldsToSave);
-              })
-            )
+          await DataStore.save(
+            Client.copyOf(clientRecord, (updated) => {
+              Object.assign(updated, modelFields);
+            })
           );
-          await Promise.all(promises);
           if (onSuccess) {
             onSuccess(modelFields);
           }
@@ -410,7 +154,6 @@ export default function ClientUpdateForm(props) {
               Name: value,
               Phone_Number,
               Client_Since,
-              Dogs,
             };
             const result = onChange(modelFields);
             value = result?.Name ?? value;
@@ -443,7 +186,6 @@ export default function ClientUpdateForm(props) {
               Name,
               Phone_Number: value,
               Client_Since,
-              Dogs,
             };
             const result = onChange(modelFields);
             value = result?.Phone_Number ?? value;
@@ -471,7 +213,6 @@ export default function ClientUpdateForm(props) {
               Name,
               Phone_Number,
               Client_Since: value,
-              Dogs,
             };
             const result = onChange(modelFields);
             value = result?.Client_Since ?? value;
@@ -486,81 +227,6 @@ export default function ClientUpdateForm(props) {
         hasError={errors.Client_Since?.hasError}
         {...getOverrideProps(overrides, "Client_Since")}
       ></TextField>
-      <ArrayField
-        onChange={async (items) => {
-          let values = items;
-          if (onChange) {
-            const modelFields = {
-              Name,
-              Phone_Number,
-              Client_Since,
-              Dogs: values,
-            };
-            const result = onChange(modelFields);
-            values = result?.Dogs ?? values;
-          }
-          setDogs(values);
-          setCurrentDogsValue(undefined);
-          setCurrentDogsDisplayValue("");
-        }}
-        currentFieldValue={currentDogsValue}
-        label={"Dogs"}
-        items={Dogs}
-        hasError={errors?.Dogs?.hasError}
-        runValidationTasks={async () =>
-          await runValidationTasks("Dogs", currentDogsValue)
-        }
-        errorMessage={errors?.Dogs?.errorMessage}
-        getBadgeText={getDisplayValue.Dogs}
-        setFieldValue={(model) => {
-          setCurrentDogsDisplayValue(model ? getDisplayValue.Dogs(model) : "");
-          setCurrentDogsValue(model);
-        }}
-        inputFieldRef={DogsRef}
-        defaultFieldValue={""}
-      >
-        <Autocomplete
-          label="Dogs"
-          isRequired={false}
-          isReadOnly={false}
-          placeholder="Search Dog"
-          value={currentDogsDisplayValue}
-          options={dogRecords
-            .filter((r) => !DogsIdSet.has(getIDValue.Dogs?.(r)))
-            .map((r) => ({
-              id: getIDValue.Dogs?.(r),
-              label: getDisplayValue.Dogs?.(r),
-            }))}
-          onSelect={({ id, label }) => {
-            setCurrentDogsValue(
-              dogRecords.find((r) =>
-                Object.entries(JSON.parse(id)).every(
-                  ([key, value]) => r[key] === value
-                )
-              )
-            );
-            setCurrentDogsDisplayValue(label);
-            runValidationTasks("Dogs", label);
-          }}
-          onClear={() => {
-            setCurrentDogsDisplayValue("");
-          }}
-          onChange={(e) => {
-            let { value } = e.target;
-            if (errors.Dogs?.hasError) {
-              runValidationTasks("Dogs", value);
-            }
-            setCurrentDogsDisplayValue(value);
-            setCurrentDogsValue(undefined);
-          }}
-          onBlur={() => runValidationTasks("Dogs", currentDogsDisplayValue)}
-          errorMessage={errors.Dogs?.errorMessage}
-          hasError={errors.Dogs?.hasError}
-          ref={DogsRef}
-          labelHidden={true}
-          {...getOverrideProps(overrides, "Dogs")}
-        ></Autocomplete>
-      </ArrayField>
       <Flex
         justifyContent="space-between"
         {...getOverrideProps(overrides, "CTAFlex")}

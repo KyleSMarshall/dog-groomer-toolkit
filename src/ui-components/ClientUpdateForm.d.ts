@@ -5,9 +5,9 @@
  **************************************************************************/
 
 import * as React from "react";
-import { AutocompleteProps, GridProps, TextFieldProps } from "@aws-amplify/ui-react";
+import { GridProps, TextFieldProps } from "@aws-amplify/ui-react";
 import { EscapeHatchProps } from "@aws-amplify/ui-react/internal";
-import { Client, Dog } from "../models";
+import { Client } from "../models";
 export declare type ValidationResponse = {
     hasError: boolean;
     errorMessage?: string;
@@ -17,13 +17,11 @@ export declare type ClientUpdateFormInputValues = {
     Name?: string;
     Phone_Number?: string;
     Client_Since?: string;
-    Dogs?: Dog[];
 };
 export declare type ClientUpdateFormValidationValues = {
     Name?: ValidationFunction<string>;
     Phone_Number?: ValidationFunction<string>;
     Client_Since?: ValidationFunction<string>;
-    Dogs?: ValidationFunction<Dog>;
 };
 export declare type PrimitiveOverrideProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
 export declare type ClientUpdateFormOverridesProps = {
@@ -31,7 +29,6 @@ export declare type ClientUpdateFormOverridesProps = {
     Name?: PrimitiveOverrideProps<TextFieldProps>;
     Phone_Number?: PrimitiveOverrideProps<TextFieldProps>;
     Client_Since?: PrimitiveOverrideProps<TextFieldProps>;
-    Dogs?: PrimitiveOverrideProps<AutocompleteProps>;
 } & EscapeHatchProps;
 export declare type ClientUpdateFormProps = React.PropsWithChildren<{
     overrides?: ClientUpdateFormOverridesProps | undefined | null;

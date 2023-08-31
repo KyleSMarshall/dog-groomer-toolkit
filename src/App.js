@@ -21,6 +21,7 @@ import { DataGrid, GridToolbarContainer, GridSearchIcon, GridToolbarQuickFilter}
 import { Button } from '@mui/material';
 import './DataViewer.css'
 
+
 function Calendar() {
   const calendarRef = useRef(null);
   const [events, setEvents] = React.useState([]);
@@ -37,7 +38,6 @@ function Calendar() {
         const dogLookup = dogData.reduce((acc, dog) => ({ ...acc, [dog.id]: dog }), {});
         const clientLookup = clientData.reduce((acc, client) => ({ ...acc, [client.id]: client }), {});
 
-        console.log(eventData);
         // Transform to a format FullCalendar understands
         // Map events and attach related data
         const transformedEvents = eventData.map(event => {
@@ -60,7 +60,6 @@ function Calendar() {
         });
       
         setEvents(transformedEvents);
-        console.log(transformedEvents);
       } catch (error) {
         console.error("Error fetching events:", error);
       }
@@ -140,7 +139,6 @@ function DataViewer() {
         const combinedData = events.map(event => {
           const relatedDog = dogLookup[event.eventDogId];
           const relatedOwner = ownerLookup[event.eventClientId];
-          console.log(relatedOwner);
           return {
             ...event, // event data
             dogName: relatedDog.Name, // or any other dog fields you want
@@ -150,7 +148,6 @@ function DataViewer() {
         });
 
         setEvents(combinedData);
-        console.log(combinedData);
 
       } catch (error) {
         console.error("Error fetching events:", error);
@@ -198,14 +195,23 @@ function App() {
               {/* Side Menu */}
               <SideMenu />
 
-              {/* Content */}
-              <div className="content">
-                  <Routes>
-                      <Route path="/" element={<Calendar />} />
-                      <Route path="/Dataviewer" element={<DataViewer />} />
-                      <Route path="/add-dog" element={<DogCreateForm />} />
-                      <Route path="/add-client" element={<ClientCreateForm />} />
-                  </Routes>
+              {/* Content Wrapper */}
+              <div className="content-wrapper">
+                  {/* Header */}
+                  <div className="content-header">
+                      The Wizard of Pawz
+                  </div>
+
+                  {/* Content */}
+                  <div className="content">
+                      <Routes>
+                          <Route path="/" element={<Calendar />} />
+                          <Route path="/Dataviewer" element={<DataViewer />} />
+                          <Route path="/add-client" element={<ClientCreateForm />} />
+                          <Route path="/add-dog" element={<DogCreateForm />} />
+                          <Route path="/create-event" element={<EventCreateForm />} />
+                      </Routes>
+                  </div>
               </div>
           </div>
       </Router>

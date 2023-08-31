@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
 .App {
   text-align: center;
 }
@@ -37,7 +39,6 @@
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
 }
 
 .App-link {
@@ -50,6 +51,29 @@
   min-height: 100vh;
   background-color: #e6f0f2;
 }
+
+.content-wrapper {
+  flex: 1;  /* Takes up remaining space */
+  flex-direction: column;  /* Vertical layout */
+  display: flex;  /* Makes it a flex container */
+}
+
+.content-header {
+  color: #ff67ffe2;
+  font-size: 2rem;
+  font-family: 'Pacifico', cursive;
+  font-weight: bold;
+  text-align: center;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+.content {
+  flex: 1;  /* Takes up remaining space */
+  padding: 20px;
+  overflow-y: auto;
+}
+
 
 /* Side menu responsiveness */
 .side-menu {
@@ -79,12 +103,6 @@
 .side-menu a:hover {
   background-color: #e6f0f2;
   border-radius: 10px;
-}
-
-.content {
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;  /* Scroll if content overflows */
 }
 
 .data-action-link {

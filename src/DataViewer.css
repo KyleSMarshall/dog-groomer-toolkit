@@ -1,8 +1,9 @@
 .grid-container {
-    height: 400px;
+    height: 100%;
     width: 100%;
     scrollbar-color: #cee9e3; /* For Firefox */
     scrollbar-width: thin;
+    border: none;
 }
   
 /* Modern mint green scrollbar with rounded edges */
@@ -29,5 +30,9 @@
 
 .MuiDataGrid-virtualScrollerRenderZone {
   font-weight: bold;
+}
+
+.MuiDataGrid-root {
+  border-color: #cee9e3;
 }
   

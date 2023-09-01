@@ -1,6 +1,6 @@
 import './App.css';
 import React, { useRef } from 'react';
-import { BrowserRouter as Router, Route, Link, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Link, Routes, useLocation, useNavigate } from 'react-router-dom';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -21,12 +21,35 @@ import { DataGrid, GridToolbarContainer, GridSearchIcon, GridToolbarQuickFilter}
 import { Button } from '@mui/material';
 import './DataViewer.css'
 
+// // Function to adjust padding
+// const adjustPadding = () => {
+//   const header = document.querySelector('.header-wrapper');
+//   const content = document.querySelector('.content');
+
+//   if (header) {
+//     const headerHeight = header.offsetHeight + 10;
+//     // Set the padding top of the content to the height of the header
+//     content.style.paddingTop = `${headerHeight}px`;
+//   }
+// };
+
+// // Call the function once initially
+// adjustPadding();
+
+// // Adjust padding whenever the window is resized
+// window.addEventListener('resize', adjustPadding);
 
 function Calendar() {
   const calendarRef = useRef(null);
   const [events, setEvents] = React.useState([]);
 
   React.useEffect(() => {
+
+    // adjustPadding();
+    // window.addEventListener('resize', adjustPadding);
+
+    // // Cleanup
+    // window.removeEventListener('resize', adjustPadding);
     
     const fetchEvents = async () => {
       try {
@@ -42,14 +65,15 @@ function Calendar() {
         // Map events and attach related data
         const transformedEvents = eventData.map(event => {
           const dog = dogLookup[event.eventDogId];
-          const client = clientLookup[event.eventClientId];
+          const client = clientLookup[dog.dogClientId];
 
           const dogName = dog ? dog.Name : "";
           const dogBreed = dog ? dog.Breed : "";
           const clientName = client ? client.Name : "";
           const clientPhoneNumber = client ? client.Phone_Number : "";
+          const apptType = event ? event.Type : "";
 
-          const title = `Dog: ${dogName} - ${dogBreed}\nOwner: ${clientName} - ${clientPhoneNumber}`;
+          const title = `Dog: ${dogName} - ${dogBreed}\nOwner: ${clientName} - ${clientPhoneNumber}\nAppt. Type: ${apptType}`;
 
           return {
               start: event.Time_Start,
@@ -93,6 +117,7 @@ function Calendar() {
       allDaySlot={false}
       expandRows={true}
       events={events}
+      height={'100%'}
     />
   );
 }
@@ -114,6 +139,13 @@ function SideMenu() {
 
 function DataViewer() {
   const [events, setEvents] = React.useState([]);
+  const navigate = useNavigate();
+
+  const handleRowDoubleClick = (params) => {
+    const eventData = params.row;
+    console.log(eventData);
+    navigate("/create-event");
+  };
 
   React.useEffect(() => {
     
@@ -172,16 +204,16 @@ function DataViewer() {
   }, []);
 
   const columns = [
-    { field: 'Name', headerName: 'Dog Name', width: 150 },
-    { field: 'Breed', headerName: 'Breed', width: 150 },
-    { field: 'ownerName', headerName: 'Owner Name', width: 150 },
-    { field: 'ownerNumber', headerName: 'Phone Number', width: 150 },
-    { field: 'mostRecentEventDate', headerName: 'Last Appointment', width: 150 },
-    { field: 'Planned_Frequency', headerName: 'Planned Frequency', width: 150 },
-    { field: 'Age', headerName: 'Age', width: 150 },
-    { field: 'Temperment', headerName: 'Temperment', width: 150 },
+    { field: 'Name', headerName: 'Dog Name', minWidth: 140 },
+    { field: 'Breed', headerName: 'Breed', width: 130 },
+    { field: 'ownerName', headerName: 'Owner Name', width: 165 },
+    { field: 'ownerNumber', headerName: 'Phone Number', width: 170 },
+    { field: 'mostRecentEventDate', headerName: 'Last Appt.', width: 150 },
+    { field: 'Planned_Frequency', headerName: 'Planned Frequency', width: 200 },
+    { field: 'Age', headerName: 'Age', width: 100 },
+    { field: 'Temperment', headerName: 'Temperment', width: 160 },
     { field: 'Style', headerName: 'Style', width: 150 },
-    { field: 'eventComments', headerName: 'Comments', width: 150 },
+    { field: 'eventComments', headerName: 'Comments', width: 350 },
     // ... add more columns as needed
   ];
 
@@ -204,6 +236,7 @@ function DataViewer() {
         components={{
           Toolbar: CustomToolbar,
         }}
+        onRowDoubleClick={handleRowDoubleClick}
       />
     </div>
   );
@@ -213,26 +246,25 @@ function App() {
   return (
       <Router>
           <div className="app-container">
+            {/* Header Wrapper */}
+            <div className="header-wrapper">
+              {/* Header */}
+              <div className="content-header">
+                  The Wizard of Pawz
+              </div>
               {/* Side Menu */}
               <SideMenu />
+            </div>
 
-              {/* Content Wrapper */}
-              <div className="content-wrapper">
-                  {/* Header */}
-                  <div className="content-header">
-                      The Wizard of Pawz
-                  </div>
-
-                  {/* Content */}
-                  <div className="content">
-                      <Routes>
-                          <Route path="/" element={<Calendar />} />
-                          <Route path="/Dataviewer" element={<DataViewer />} />
-                          <Route path="/add-client" element={<ClientCreateForm />} />
-                          <Route path="/add-dog" element={<DogCreateForm />} />
-                          <Route path="/create-event" element={<EventCreateForm />} />
-                      </Routes>
-                  </div>
+              {/* Content */}
+              <div className="content">
+                  <Routes>
+                      <Route path="/" element={<Calendar />} />
+                      <Route path="/Dataviewer" element={<DataViewer />} />
+                      <Route path="/add-client" element={<ClientCreateForm />} />
+                      <Route path="/add-dog" element={<DogCreateForm />} />
+                      <Route path="/create-event" element={<EventCreateForm />} />
+                  </Routes>
               </div>
           </div>
       </Router>

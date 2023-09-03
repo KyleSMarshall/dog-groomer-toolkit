@@ -1,5 +1,5 @@
 import './App.css';
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { BrowserRouter as Router, Route, Link, Routes, useLocation, useNavigate } from 'react-router-dom';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -38,6 +38,8 @@ import './DataViewer.css'
 
 // // Adjust padding whenever the window is resized
 // window.addEventListener('resize', adjustPadding);
+
+const DataContext = React.createContext();
 
 function Calendar() {
   const calendarRef = useRef(null);
@@ -139,11 +141,12 @@ function SideMenu() {
 
 function DataViewer() {
   const [events, setEvents] = React.useState([]);
+  const { setSelectedData } = React.useContext(DataContext);
   const navigate = useNavigate();
 
   const handleRowDoubleClick = (params) => {
     const eventData = params.row;
-    console.log(eventData);
+    setSelectedData(eventData);
     navigate("/create-event");
   };
 
@@ -190,10 +193,7 @@ function DataViewer() {
           };
         });
 
-        console.log(combinedData);
         setEvents(combinedData); // Assuming you'll change the state variable name to something more appropriate like setDogs
-
-
 
       } catch (error) {
         console.error("Error fetching events:", error);
@@ -243,8 +243,11 @@ function DataViewer() {
 }
 
 function App() {
+  const [selectedData, setSelectedData] = useState();
+
   return (
       <Router>
+        <DataContext.Provider value={{ selectedData, setSelectedData }}>
           <div className="app-container">
             {/* Header Wrapper */}
             <div className="header-wrapper">
@@ -267,9 +270,10 @@ function App() {
                   </Routes>
               </div>
           </div>
+        </DataContext.Provider>
       </Router>
   );
 }
 
-
+export {DataContext};
 export default App;

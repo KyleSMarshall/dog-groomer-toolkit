@@ -6,237 +6,57 @@
 
 /* eslint-disable */
 import * as React from "react";
+import { DataContext } from "../App";
 import {
-  Autocomplete,
-  Badge,
   Button,
   Divider,
   Flex,
   Grid,
-  Icon,
-  ScrollView,
-  Text,
+  Heading,
   TextField,
-  useTheme,
 } from "@aws-amplify/ui-react";
-import {
-  getOverrideProps,
-  useDataStoreBinding,
-} from "@aws-amplify/ui-react/internal";
-import { Event, Dog as Dog0 } from "../models";
+import { getOverrideProps } from "@aws-amplify/ui-react/internal";
+import { Event } from "../models";
 import { fetchByPath, validateField } from "./utils";
 import { DataStore } from "aws-amplify";
-function ArrayField({
-  items = [],
-  onChange,
-  label,
-  inputFieldRef,
-  children,
-  hasError,
-  setFieldValue,
-  currentFieldValue,
-  defaultFieldValue,
-  lengthLimit,
-  getBadgeText,
-  runValidationTasks,
-  errorMessage,
-}) {
-  const labelElement = <Text>{label}</Text>;
-  const {
-    tokens: {
-      components: {
-        fieldmessages: { error: errorStyles },
-      },
-    },
-  } = useTheme();
-  const [selectedBadgeIndex, setSelectedBadgeIndex] = React.useState();
-  const [isEditing, setIsEditing] = React.useState();
-  React.useEffect(() => {
-    if (isEditing) {
-      inputFieldRef?.current?.focus();
-    }
-  }, [isEditing]);
-  const removeItem = async (removeIndex) => {
-    const newItems = items.filter((value, index) => index !== removeIndex);
-    await onChange(newItems);
-    setSelectedBadgeIndex(undefined);
-  };
-  const addItem = async () => {
-    const { hasError } = runValidationTasks();
-    if (
-      currentFieldValue !== undefined &&
-      currentFieldValue !== null &&
-      currentFieldValue !== "" &&
-      !hasError
-    ) {
-      const newItems = [...items];
-      if (selectedBadgeIndex !== undefined) {
-        newItems[selectedBadgeIndex] = currentFieldValue;
-        setSelectedBadgeIndex(undefined);
-      } else {
-        newItems.push(currentFieldValue);
-      }
-      await onChange(newItems);
-      setIsEditing(false);
-    }
-  };
-  const arraySection = (
-    <React.Fragment>
-      {!!items?.length && (
-        <ScrollView height="inherit" width="inherit" maxHeight={"7rem"}>
-          {items.map((value, index) => {
-            return (
-              <Badge
-                key={index}
-                style={{
-                  cursor: "pointer",
-                  alignItems: "center",
-                  marginRight: 3,
-                  marginTop: 3,
-                  backgroundColor:
-                    index === selectedBadgeIndex ? "#B8CEF9" : "",
-                }}
-                onClick={() => {
-                  setSelectedBadgeIndex(index);
-                  setFieldValue(items[index]);
-                  setIsEditing(true);
-                }}
-              >
-                {getBadgeText ? getBadgeText(value) : value.toString()}
-                <Icon
-                  style={{
-                    cursor: "pointer",
-                    paddingLeft: 3,
-                    width: 20,
-                    height: 20,
-                  }}
-                  viewBox={{ width: 20, height: 20 }}
-                  paths={[
-                    {
-                      d: "M10 10l5.09-5.09L10 10l5.09 5.09L10 10zm0 0L4.91 4.91 10 10l-5.09 5.09L10 10z",
-                      stroke: "black",
-                    },
-                  ]}
-                  ariaLabel="button"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    removeItem(index);
-                  }}
-                />
-              </Badge>
-            );
-          })}
-        </ScrollView>
-      )}
-      <Divider orientation="horizontal" marginTop={5} />
-    </React.Fragment>
-  );
-  if (lengthLimit !== undefined && items.length >= lengthLimit && !isEditing) {
-    return (
-      <React.Fragment>
-        {labelElement}
-        {arraySection}
-      </React.Fragment>
-    );
-  }
-  return (
-    <React.Fragment>
-      {labelElement}
-      {isEditing && children}
-      {!isEditing ? (
-        <>
-          <Button
-            onClick={() => {
-              setIsEditing(true);
-            }}
-          >
-            Add item
-          </Button>
-          {errorMessage && hasError && (
-            <Text color={errorStyles.color} fontSize={errorStyles.fontSize}>
-              {errorMessage}
-            </Text>
-          )}
-        </>
-      ) : (
-        <Flex justifyContent="flex-end">
-          {(currentFieldValue || isEditing) && (
-            <Button
-              children="Cancel"
-              type="button"
-              size="small"
-              onClick={() => {
-                setFieldValue(defaultFieldValue);
-                setIsEditing(false);
-                setSelectedBadgeIndex(undefined);
-              }}
-            ></Button>
-          )}
-          <Button size="small" variation="link" onClick={addItem}>
-            {selectedBadgeIndex !== undefined ? "Save" : "Add"}
-          </Button>
-        </Flex>
-      )}
-      {arraySection}
-    </React.Fragment>
-  );
-}
+import { useNavigate } from 'react-router-dom';
 export default function EventCreateForm(props) {
+  const dogContext = React.useContext(DataContext);
   const {
     clearOnSuccess = true,
     onSuccess,
     onError,
     onSubmit,
+    onCancel,
     onValidate,
     onChange,
     overrides,
     ...rest
   } = props;
   const initialValues = {
+    Dog: dogContext.selectedData.Name,
     Time_Start: "",
-    Dog: undefined,
     Time_End: "",
     Type: "",
     Comments: "",
   };
-  const [Time_Start, setTime_Start] = React.useState(initialValues.Time_Start);
   const [Dog, setDog] = React.useState(initialValues.Dog);
+  const [Time_Start, setTime_Start] = React.useState(initialValues.Time_Start);
   const [Time_End, setTime_End] = React.useState(initialValues.Time_End);
   const [Type, setType] = React.useState(initialValues.Type);
   const [Comments, setComments] = React.useState(initialValues.Comments);
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
-    setTime_Start(initialValues.Time_Start);
     setDog(initialValues.Dog);
-    setCurrentDogValue(undefined);
-    setCurrentDogDisplayValue("");
+    setTime_Start(initialValues.Time_Start);
     setTime_End(initialValues.Time_End);
     setType(initialValues.Type);
     setComments(initialValues.Comments);
     setErrors({});
   };
-  const [currentDogDisplayValue, setCurrentDogDisplayValue] =
-    React.useState("");
-  const [currentDogValue, setCurrentDogValue] = React.useState(undefined);
-  const DogRef = React.createRef();
-  const getIDValue = {
-    Dog: (r) => JSON.stringify({ id: r?.id }),
-  };
-  const DogIdSet = new Set(
-    Array.isArray(Dog)
-      ? Dog.map((r) => getIDValue.Dog?.(r))
-      : getIDValue.Dog?.(Dog)
-  );
-  const dogRecords = useDataStoreBinding({
-    type: "collection",
-    model: Dog0,
-  }).items;
-  const getDisplayValue = {
-    Dog: (r) => `${r?.Name ? r?.Name + " - " : ""}${r?.id}`,
-  };
   const validations = {
+    Dog: [{ type: "Required" }],
     Time_Start: [{ type: "Required" }],
-    Dog: [{ type: "Required", validationMessage: "Dog is required." }],
     Time_End: [{ type: "Required" }],
     Type: [{ type: "Required" }],
     Comments: [],
@@ -275,6 +95,9 @@ export default function EventCreateForm(props) {
     }, {});
     return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}`;
   };
+
+  const navigate = useNavigate();
+
   return (
     <Grid
       as="form"
@@ -284,8 +107,8 @@ export default function EventCreateForm(props) {
       onSubmit={async (event) => {
         event.preventDefault();
         let modelFields = {
-          Time_Start,
           Dog,
+          Time_Start,
           Time_End,
           Type,
           Comments,
@@ -295,21 +118,13 @@ export default function EventCreateForm(props) {
             if (Array.isArray(modelFields[fieldName])) {
               promises.push(
                 ...modelFields[fieldName].map((item) =>
-                  runValidationTasks(
-                    fieldName,
-                    item,
-                    getDisplayValue[fieldName]
-                  )
+                  runValidationTasks(fieldName, item)
                 )
               );
               return promises;
             }
             promises.push(
-              runValidationTasks(
-                fieldName,
-                modelFields[fieldName],
-                getDisplayValue[fieldName]
-              )
+              runValidationTasks(fieldName, modelFields[fieldName])
             );
             return promises;
           }, [])
@@ -326,12 +141,21 @@ export default function EventCreateForm(props) {
               modelFields[key] = null;
             }
           });
-          await DataStore.save(new Event(modelFields));
+          const modelFieldsToSave = {
+            eventDogId: dogContext.selectedData.id,
+            Time_Start: modelFields.Time_Start,
+            Time_End: modelFields.Time_End,
+            Type: modelFields.Type,
+            Comments: modelFields.Comments,
+          };
+          await DataStore.save(new Event(modelFieldsToSave));
           if (onSuccess) {
             onSuccess(modelFields);
+            navigate("/Dataviewer");
           }
           if (clearOnSuccess) {
             resetStateValues();
+            navigate("/Dataviewer");
           }
         } catch (err) {
           if (onError) {
@@ -342,6 +166,44 @@ export default function EventCreateForm(props) {
       {...getOverrideProps(overrides, "EventCreateForm")}
       {...rest}
     >
+      <Heading
+        level={4}
+        children="New Appointment"
+        {...getOverrideProps(overrides, "SectionalElement0")}
+      ></Heading>
+      <Divider
+        orientation="horizontal"
+        {...getOverrideProps(overrides, "SectionalElement1")}
+      ></Divider>
+      <TextField
+        label="Dog"
+        isRequired={true}
+        value={Dog}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              Dog: value,
+              Time_Start,
+              Time_End,
+              Type,
+              Comments,
+            };
+            const result = onChange(modelFields);
+            value = result?.Dog ?? value;
+          }
+          if (errors.Dog?.hasError) {
+            runValidationTasks("Dog", value);
+          }
+          setDog(value);
+        }}
+        onBlur={() => runValidationTasks("Dog", Dog)}
+        errorMessage={errors.Dog?.errorMessage}
+        hasError={errors.Dog?.hasError}
+        {...getOverrideProps(overrides, "Dog")}
+        isReadOnly={true}
+        id="dog-input-field"
+      ></TextField>
       <TextField
         label="Time start"
         isRequired={true}
@@ -353,8 +215,8 @@ export default function EventCreateForm(props) {
             e.target.value === "" ? "" : new Date(e.target.value).toISOString();
           if (onChange) {
             const modelFields = {
-              Time_Start: value,
               Dog,
+              Time_Start: value,
               Time_End,
               Type,
               Comments,
@@ -372,83 +234,6 @@ export default function EventCreateForm(props) {
         hasError={errors.Time_Start?.hasError}
         {...getOverrideProps(overrides, "Time_Start")}
       ></TextField>
-      <ArrayField
-        lengthLimit={1}
-        onChange={async (items) => {
-          let value = items[0];
-          if (onChange) {
-            const modelFields = {
-              Time_Start,
-              Dog: value,
-              Time_End,
-              Type,
-              Comments,
-            };
-            const result = onChange(modelFields);
-            value = result?.Dog ?? value;
-          }
-          setDog(value);
-          setCurrentDogValue(undefined);
-          setCurrentDogDisplayValue("");
-        }}
-        currentFieldValue={currentDogValue}
-        label={"Dog"}
-        items={Dog ? [Dog] : []}
-        hasError={errors?.Dog?.hasError}
-        runValidationTasks={async () =>
-          await runValidationTasks("Dog", currentDogValue)
-        }
-        errorMessage={errors?.Dog?.errorMessage}
-        getBadgeText={getDisplayValue.Dog}
-        setFieldValue={(model) => {
-          setCurrentDogDisplayValue(model ? getDisplayValue.Dog(model) : "");
-          setCurrentDogValue(model);
-        }}
-        inputFieldRef={DogRef}
-        defaultFieldValue={""}
-      >
-        <Autocomplete
-          label="Dog"
-          isRequired={true}
-          isReadOnly={false}
-          placeholder="Search Dog"
-          value={currentDogDisplayValue}
-          options={dogRecords
-            .filter((r) => !DogIdSet.has(getIDValue.Dog?.(r)))
-            .map((r) => ({
-              id: getIDValue.Dog?.(r),
-              label: getDisplayValue.Dog?.(r),
-            }))}
-          onSelect={({ id, label }) => {
-            setCurrentDogValue(
-              dogRecords.find((r) =>
-                Object.entries(JSON.parse(id)).every(
-                  ([key, value]) => r[key] === value
-                )
-              )
-            );
-            setCurrentDogDisplayValue(label);
-            runValidationTasks("Dog", label);
-          }}
-          onClear={() => {
-            setCurrentDogDisplayValue("");
-          }}
-          onChange={(e) => {
-            let { value } = e.target;
-            if (errors.Dog?.hasError) {
-              runValidationTasks("Dog", value);
-            }
-            setCurrentDogDisplayValue(value);
-            setCurrentDogValue(undefined);
-          }}
-          onBlur={() => runValidationTasks("Dog", currentDogDisplayValue)}
-          errorMessage={errors.Dog?.errorMessage}
-          hasError={errors.Dog?.hasError}
-          ref={DogRef}
-          labelHidden={true}
-          {...getOverrideProps(overrides, "Dog")}
-        ></Autocomplete>
-      </ArrayField>
       <TextField
         label="Time end"
         isRequired={true}
@@ -460,8 +245,8 @@ export default function EventCreateForm(props) {
             e.target.value === "" ? "" : new Date(e.target.value).toISOString();
           if (onChange) {
             const modelFields = {
-              Time_Start,
               Dog,
+              Time_Start,
               Time_End: value,
               Type,
               Comments,
@@ -480,7 +265,7 @@ export default function EventCreateForm(props) {
         {...getOverrideProps(overrides, "Time_End")}
       ></TextField>
       <TextField
-        label="Type"
+        label="Type of appointment"
         isRequired={true}
         isReadOnly={false}
         value={Type}
@@ -488,8 +273,8 @@ export default function EventCreateForm(props) {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
-              Time_Start,
               Dog,
+              Time_Start,
               Time_End,
               Type: value,
               Comments,
@@ -508,7 +293,7 @@ export default function EventCreateForm(props) {
         {...getOverrideProps(overrides, "Type")}
       ></TextField>
       <TextField
-        label="Comments"
+        label="Additional comments"
         isRequired={false}
         isReadOnly={false}
         value={Comments}
@@ -516,8 +301,8 @@ export default function EventCreateForm(props) {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
-              Time_Start,
               Dog,
+              Time_Start,
               Time_End,
               Type,
               Comments: value,
@@ -552,6 +337,14 @@ export default function EventCreateForm(props) {
           gap="15px"
           {...getOverrideProps(overrides, "RightAlignCTASubFlex")}
         >
+          <Button
+            children="Cancel"
+            type="button"
+            onClick={() => {
+              onCancel && onCancel();
+            }}
+            {...getOverrideProps(overrides, "CancelButton")}
+          ></Button>
           <Button
             children="Submit"
             type="submit"

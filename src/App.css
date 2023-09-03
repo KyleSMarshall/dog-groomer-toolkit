@@ -156,3 +156,10 @@
 .data-action-link:hover {
   background-color: #e6f0f2;
 }
+
+.amplify-input:disabled {
+  color: unset !important;
+  cursor: unset !important;
+  border-color: unset !important;
+  background-color: unset !important;
+}

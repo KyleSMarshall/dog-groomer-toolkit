@@ -5,7 +5,7 @@
  **************************************************************************/
 
 import * as React from "react";
-import { GridProps, TextAreaFieldProps, TextFieldProps } from "@aws-amplify/ui-react";
+import { GridProps, StepperFieldProps, TextAreaFieldProps, TextFieldProps } from "@aws-amplify/ui-react";
 import { EscapeHatchProps } from "@aws-amplify/ui-react/internal";
 export declare type ValidationResponse = {
     hasError: boolean;
@@ -15,12 +15,14 @@ export declare type ValidationFunction<T> = (value: T, validationResponse: Valid
 export declare type NewClientInputValues = {
     Name?: string;
     Phone_Number?: string;
+    Field0?: number;
     Client_Since?: string;
     Dogs?: string;
 };
 export declare type NewClientValidationValues = {
     Name?: ValidationFunction<string>;
     Phone_Number?: ValidationFunction<string>;
+    Field0?: ValidationFunction<number>;
     Client_Since?: ValidationFunction<string>;
     Dogs?: ValidationFunction<string>;
 };
@@ -29,6 +31,7 @@ export declare type NewClientOverridesProps = {
     NewClientGrid?: PrimitiveOverrideProps<GridProps>;
     Name?: PrimitiveOverrideProps<TextFieldProps>;
     Phone_Number?: PrimitiveOverrideProps<TextAreaFieldProps>;
+    Field0?: PrimitiveOverrideProps<StepperFieldProps>;
     Client_Since?: PrimitiveOverrideProps<TextFieldProps>;
     Dogs?: PrimitiveOverrideProps<TextFieldProps>;
 } & EscapeHatchProps;

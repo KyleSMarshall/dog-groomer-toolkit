@@ -71,7 +71,7 @@
 }
 
 .content-header {
-  color: #ff67ffe2;
+  color: #e6f0f2;
   font-size: 2rem;
   font-family: 'Pacifico', cursive;
   font-weight: bold;
@@ -162,4 +162,77 @@
   cursor: unset !important;
   border-color: unset !important;
   background-color: unset !important;
+}
+
+/* Dog notes modal styling */
+.modal-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60%;
+  height: 60%;
+  background-color: #e6f0f2;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  padding: 16px;
+  overflow: auto;
+}
+
+.modal-header {
+  background-color: #4f998a;
+  color: white;
+  padding: 8px;
+  text-align: center;
+  border-radius: 4px;
+}
+
+.modal-header-data {
+  padding: 8px;
+  text-align: center;
+  color: #4f998a;
+  font-weight: bolder;
+}
+
+.modal-header h6,
+.modal-header-data p {
+  width: 25%;
+}
+
+.section-header {
+  color: #4f998a;
+  margin-bottom: 12px;
+}
+
+/* ... existing styles ... */
+
+.notes-section, .grooming-record-section {
+  height: 30%;  /* Set the maximum height in percentage */
+  overflow-y: auto;  /* Show vertical scrollbar when content overflows */
+}
+
+.notes-section {
+  border: 1px solid #4f998a;
+  padding: 10px;
+  max-height: 40%;
+  overflow-y: auto;
+}
+
+/* Remove border from Material-UI TextField */
+.notes-section .MuiInput-underline:after, 
+.notes-section .MuiInput-underline:before {
+  border-bottom: none !important;
+}
+
+/* Ensure TextField takes all available space */
+.notes-section .MuiInputBase-root {
+  width: 100%;
+  padding: 0px;
+}
+
+
+.save-button {
+  position: absolute !important;
+  bottom: 16px;
+  right: 16px;
 }

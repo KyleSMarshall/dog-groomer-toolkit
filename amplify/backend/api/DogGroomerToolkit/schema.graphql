@@ -18,10 +18,11 @@ type Dog @model @auth(rules: [{allow: public}]) {
   id: ID!
   Name: String!
   Breed: String!
-  Age: Int
+  Age: AWSDate
   Temperment: String
   Planned_Frequency: String
   Style: String
   Client: Client! @hasOne
+  Notes: String
 }
  

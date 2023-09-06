@@ -10,6 +10,7 @@ import {
   Button,
   Flex,
   Grid,
+  StepperField,
   TextAreaField,
   TextField,
   useTheme,
@@ -34,6 +35,7 @@ export default function NewClient(props) {
   const initialValues = {
     Name: "",
     Phone_Number: "",
+    Field0: 0,
     Client_Since: "",
     Dogs: "",
   };
@@ -41,6 +43,7 @@ export default function NewClient(props) {
   const [Phone_Number, setPhone_Number] = React.useState(
     initialValues.Phone_Number
   );
+  const [Field0, setField0] = React.useState(initialValues.Field0);
   const [Client_Since, setClient_Since] = React.useState(
     initialValues.Client_Since
   );
@@ -49,6 +52,7 @@ export default function NewClient(props) {
   const resetStateValues = () => {
     setName(initialValues.Name);
     setPhone_Number(initialValues.Phone_Number);
+    setField0(initialValues.Field0);
     setClient_Since(initialValues.Client_Since);
     setDogs(initialValues.Dogs);
     setErrors({});
@@ -71,6 +75,7 @@ export default function NewClient(props) {
         validationMessage: 'The value must not contain "- or whitespace"',
       },
     ],
+    Field0: [],
     Client_Since: [],
     Dogs: [],
   };
@@ -102,6 +107,7 @@ export default function NewClient(props) {
         let modelFields = {
           Name,
           Phone_Number,
+          Field0,
           Client_Since,
           Dogs,
         };
@@ -170,6 +176,7 @@ export default function NewClient(props) {
             const modelFields = {
               Name: value,
               Phone_Number,
+              Field0,
               Client_Since,
               Dogs,
             };
@@ -203,6 +210,7 @@ export default function NewClient(props) {
             const modelFields = {
               Name,
               Phone_Number: value,
+              Field0,
               Client_Since,
               Dogs,
             };
@@ -219,6 +227,32 @@ export default function NewClient(props) {
         hasError={errors.Phone_Number?.hasError}
         {...getOverrideProps(overrides, "Phone_Number")}
       ></TextAreaField>
+      <StepperField
+        label="Label"
+        value={Field0}
+        onStepChange={(e) => {
+          let value = e;
+          if (onChange) {
+            const modelFields = {
+              Name,
+              Phone_Number,
+              Field0: value,
+              Client_Since,
+              Dogs,
+            };
+            const result = onChange(modelFields);
+            value = result?.Field0 ?? value;
+          }
+          if (errors.Field0?.hasError) {
+            runValidationTasks("Field0", value);
+          }
+          setField0(value);
+        }}
+        onBlur={() => runValidationTasks("Field0", Field0)}
+        errorMessage={errors.Field0?.errorMessage}
+        hasError={errors.Field0?.hasError}
+        {...getOverrideProps(overrides, "Field0")}
+      ></StepperField>
       <TextField
         label="Client since"
         isRequired={false}
@@ -231,6 +265,7 @@ export default function NewClient(props) {
             const modelFields = {
               Name,
               Phone_Number,
+              Field0,
               Client_Since: value,
               Dogs,
             };
@@ -256,6 +291,7 @@ export default function NewClient(props) {
             const modelFields = {
               Name,
               Phone_Number,
+              Field0,
               Client_Since,
               Dogs: value,
             };

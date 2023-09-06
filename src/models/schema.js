@@ -205,7 +205,7 @@ export const schema = {
                 "Age": {
                     "name": "Age",
                     "isArray": false,
-                    "type": "Int",
+                    "type": "AWSDate",
                     "isRequired": false,
                     "attributes": []
                 },
@@ -247,6 +247,13 @@ export const schema = {
                             "dogClientId"
                         ]
                     }
+                },
+                "Notes": {
+                    "name": "Notes",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
                 },
                 "createdAt": {
                     "name": "createdAt",
@@ -301,5 +308,5 @@ export const schema = {
     "enums": {},
     "nonModels": {},
     "codegenVersion": "3.4.4",
-    "version": "1ddf8e1e7e017a938c535cae8fb78831"
+    "version": "19876fbb1193c9dde46e832e05e00e4a"
 };

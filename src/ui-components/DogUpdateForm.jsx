@@ -202,6 +202,7 @@ export default function DogUpdateForm(props) {
     Planned_Frequency: "",
     Style: "",
     Client: undefined,
+    Notes: "",
   };
   const [Name, setName] = React.useState(initialValues.Name);
   const [Breed, setBreed] = React.useState(initialValues.Breed);
@@ -212,6 +213,7 @@ export default function DogUpdateForm(props) {
   );
   const [Style, setStyle] = React.useState(initialValues.Style);
   const [Client, setClient] = React.useState(initialValues.Client);
+  const [Notes, setNotes] = React.useState(initialValues.Notes);
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
     const cleanValues = dogRecord
@@ -226,6 +228,7 @@ export default function DogUpdateForm(props) {
     setClient(cleanValues.Client);
     setCurrentClientValue(undefined);
     setCurrentClientDisplayValue("");
+    setNotes(cleanValues.Notes);
     setErrors({});
   };
   const [dogRecord, setDogRecord] = React.useState(dogModelProp);
@@ -266,6 +269,7 @@ export default function DogUpdateForm(props) {
     Planned_Frequency: [],
     Style: [],
     Client: [{ type: "Required", validationMessage: "Client is required." }],
+    Notes: [],
   };
   const runValidationTasks = async (
     fieldName,
@@ -300,6 +304,7 @@ export default function DogUpdateForm(props) {
           Planned_Frequency,
           Style,
           Client,
+          Notes,
         };
         const validationResponses = await Promise.all(
           Object.keys(validations).reduce((promises, fieldName) => {
@@ -378,6 +383,7 @@ export default function DogUpdateForm(props) {
               Planned_Frequency,
               Style,
               Client,
+              Notes,
             };
             const result = onChange(modelFields);
             value = result?.Name ?? value;
@@ -413,6 +419,7 @@ export default function DogUpdateForm(props) {
               Planned_Frequency,
               Style,
               Client,
+              Notes,
             };
             const result = onChange(modelFields);
             value = result?.Breed ?? value;
@@ -440,9 +447,7 @@ export default function DogUpdateForm(props) {
         step="any"
         value={Age}
         onChange={(e) => {
-          let value = isNaN(parseInt(e.target.value))
-            ? e.target.value
-            : parseInt(e.target.value);
+          let { value } = e.target;
           if (onChange) {
             const modelFields = {
               Name,
@@ -452,6 +457,7 @@ export default function DogUpdateForm(props) {
               Planned_Frequency,
               Style,
               Client,
+              Notes,
             };
             const result = onChange(modelFields);
             value = result?.Age ?? value;
@@ -482,6 +488,7 @@ export default function DogUpdateForm(props) {
               Planned_Frequency,
               Style,
               Client,
+              Notes,
             };
             const result = onChange(modelFields);
             value = result?.Temperment ?? value;
@@ -512,6 +519,7 @@ export default function DogUpdateForm(props) {
               Planned_Frequency: value,
               Style,
               Client,
+              Notes,
             };
             const result = onChange(modelFields);
             value = result?.Planned_Frequency ?? value;
@@ -544,6 +552,7 @@ export default function DogUpdateForm(props) {
               Planned_Frequency,
               Style: value,
               Client,
+              Notes,
             };
             const result = onChange(modelFields);
             value = result?.Style ?? value;
@@ -571,6 +580,7 @@ export default function DogUpdateForm(props) {
               Planned_Frequency,
               Style,
               Client: value,
+              Notes,
             };
             const result = onChange(modelFields);
             value = result?.Client ?? value;
@@ -650,6 +660,37 @@ export default function DogUpdateForm(props) {
           {...getOverrideProps(overrides, "Client")}
         ></Autocomplete>
       </ArrayField>
+      <TextField
+        label="Notes"
+        isRequired={false}
+        isReadOnly={false}
+        value={Notes}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              Name,
+              Breed,
+              Age,
+              Temperment,
+              Planned_Frequency,
+              Style,
+              Client,
+              Notes: value,
+            };
+            const result = onChange(modelFields);
+            value = result?.Notes ?? value;
+          }
+          if (errors.Notes?.hasError) {
+            runValidationTasks("Notes", value);
+          }
+          setNotes(value);
+        }}
+        onBlur={() => runValidationTasks("Notes", Notes)}
+        errorMessage={errors.Notes?.errorMessage}
+        hasError={errors.Notes?.hasError}
+        {...getOverrideProps(overrides, "Notes")}
+      ></TextField>
       <Flex
         justifyContent="space-between"
         {...getOverrideProps(overrides, "CTAFlex")}

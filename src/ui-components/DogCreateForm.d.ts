@@ -16,20 +16,22 @@ export declare type ValidationFunction<T> = (value: T, validationResponse: Valid
 export declare type DogCreateFormInputValues = {
     Name?: string;
     Breed?: string;
-    Age?: number;
+    Age?: string;
     Temperment?: string;
     Planned_Frequency?: string;
     Style?: string;
     Client?: Client0;
+    Notes?: string;
 };
 export declare type DogCreateFormValidationValues = {
     Name?: ValidationFunction<string>;
     Breed?: ValidationFunction<string>;
-    Age?: ValidationFunction<number>;
+    Age?: ValidationFunction<string>;
     Temperment?: ValidationFunction<string>;
     Planned_Frequency?: ValidationFunction<string>;
     Style?: ValidationFunction<string>;
     Client?: ValidationFunction<Client0>;
+    Notes?: ValidationFunction<string>;
 };
 export declare type PrimitiveOverrideProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
 export declare type DogCreateFormOverridesProps = {
@@ -41,6 +43,7 @@ export declare type DogCreateFormOverridesProps = {
     Planned_Frequency?: PrimitiveOverrideProps<TextFieldProps>;
     Style?: PrimitiveOverrideProps<TextFieldProps>;
     Client?: PrimitiveOverrideProps<AutocompleteProps>;
+    Notes?: PrimitiveOverrideProps<TextFieldProps>;
 } & EscapeHatchProps;
 export declare type DogCreateFormProps = React.PropsWithChildren<{
     overrides?: DogCreateFormOverridesProps | undefined | null;

@@ -84,11 +84,12 @@ type EagerDog = {
   readonly id: string;
   readonly Name: string;
   readonly Breed: string;
-  readonly Age?: number | null;
+  readonly Age?: string | null;
   readonly Temperment?: string | null;
   readonly Planned_Frequency?: string | null;
   readonly Style?: string | null;
   readonly Client: Client;
+  readonly Notes?: string | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   readonly dogClientId: string;
@@ -102,11 +103,12 @@ type LazyDog = {
   readonly id: string;
   readonly Name: string;
   readonly Breed: string;
-  readonly Age?: number | null;
+  readonly Age?: string | null;
   readonly Temperment?: string | null;
   readonly Planned_Frequency?: string | null;
   readonly Style?: string | null;
   readonly Client: AsyncItem<Client>;
+  readonly Notes?: string | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   readonly dogClientId: string;

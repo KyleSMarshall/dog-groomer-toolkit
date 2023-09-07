@@ -157,6 +157,8 @@ function DataViewer() {
   const handleOpen = (params) => {
     setRowData(params.row);
     console.log(params.row);
+    setNotes(params.Notes || "");
+    setShowSaveButton(false);
     setOpen(true);
   };
   
@@ -387,7 +389,7 @@ function DataViewer() {
               const [month, day, year] = formatDate(eventDate).split(' ');
               return (
                 <div key={index} className="record-entry">
-                  <span className="material-symbols-outlined">flag</span>
+                  <span className="record-flag material-symbols-outlined">flag</span>
                   <span className="record-month">{month}</span>
                   <span className="record-day">{day.replace(',', '')},</span>
                   <span className="record-year">{year}:</span>

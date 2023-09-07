@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0");
 
 #root {
   display: flex;
@@ -262,25 +263,39 @@
 }
 .record-month,
 .record-day,
-.record-year {
+.record-year,
+.record-flag {
   display: inline-block;
   text-align: right;  /* Ensure alignment */
+}
+.record-flag {
+  flex-shrink: 0;
+  width: 25px;
+  text-align: left;
 }
 .record-month {
   flex-shrink: 0;
   width: 30px;  /* Enough width for month abbreviation */
+  font-weight: 500;
+  font-family: Arial, Helvetica, sans-serif;
 }
 .record-day {
   flex-shrink: 0;
   width: 25px;  /* Enough width for the day */
+  font-weight: 500;
+  font-family: Arial, Helvetica, sans-serif;
 }
 .record-year {
   flex-shrink: 0;
   width: 42px;  /* Enough width for the year */
+  font-weight: 500;
+  font-family: Arial, Helvetica, sans-serif;
 }
 .record-comment {
   flex-grow: 1;
   padding-left: 10px;
+  font-weight: 500;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 

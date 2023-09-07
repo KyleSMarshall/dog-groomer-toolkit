@@ -194,33 +194,41 @@ function DataViewer() {
         const ownerLookup = owners.reduce((acc, owner) => ({ ...acc, [owner.id]: owner }), {});
         const dogLookup = dogs.reduce((acc, dog) => ({ ...acc, [dog.id]: dog }), {});
 
-        // Create a lookup for the most recent event date, type, and comments for each dog
-        const mostRecentEventLookup = events.reduce((acc, event) => {
-          if (!acc[event.eventDogId] || new Date(acc[event.eventDogId].date) < new Date(event.Time_Start)) {
-            acc[event.eventDogId] = {
+        // Create a lookup for all events associated with each dog
+        const dogEventsLookup = events.reduce((acc, event) => {
+          if (!acc[event.eventDogId]) {
+              acc[event.eventDogId] = [];
+          }
+          acc[event.eventDogId].push({
               date: event.Time_Start,
               type: event.Type,
-              comments: event.Comments,
-            };
-          }
+              comments: event.Comments || "",
+          });
           return acc;
         }, {});
+
+        // Sort events chronologically for each dog
+        for (let dogId in dogEventsLookup) {
+          dogEventsLookup[dogId].sort((a, b) => new Date(a.date) - new Date(b.date));
+        }
 
         // Transform dogs to include related owner and most recent event data
         const combinedDogData = dogs.map(dog => {
           const relatedOwner = ownerLookup[dog.dogClientId];
-          const mostRecentEvent = mostRecentEventLookup[dog.id];
-          const mostRecentEventDate = mostRecentEvent ? new Date(mostRecentEvent.date).toISOString().split('T')[0] : "N/A";
-          const eventType = mostRecentEvent ? mostRecentEvent.type : "N/A";
-          const eventComments = mostRecentEvent ? mostRecentEvent.comments : "N/A";
+          const dogEvents = dogEventsLookup[dog.id] || [];
+          //const mostRecentEvent = mostRecentEventLookup[dog.id];
+          //const mostRecentEventDate = mostRecentEvent ? new Date(mostRecentEvent.date).toISOString().split('T')[0] : "N/A";
+          //const eventType = mostRecentEvent ? mostRecentEvent.type : "N/A";
+          //const eventComments = mostRecentEvent ? mostRecentEvent.comments : "N/A";
+          const eventDates = dogEvents.map(event => new Date(event.date).toISOString().split('T')[0]);
+          const eventComments = dogEvents.map(event => event.comments);
 
           return {
             ...dog, // existing dog data
-            ownerName: relatedOwner ? relatedOwner.Name : 'N/A', // Add owner name
+            ownerName: relatedOwner ? relatedOwner.Name : 'N/A', 
             ownerNumber: relatedOwner ? relatedOwner.Phone_Number : 'N/A',
-            mostRecentEventDate: mostRecentEventDate, // Most recent event date
-            eventType: eventType, // Event type
-            eventComments: eventComments, // Event comments
+            eventDates: eventDates, 
+            eventComments: eventComments, 
           };
         });
 
@@ -316,6 +324,12 @@ function DataViewer() {
     );
   }
 
+  function formatDate(isoDate) {
+    const date = new Date(isoDate);
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+}
+
   return (
     <div className="grid-container">
       {/* Conditional rendering based on activeView */}
@@ -355,7 +369,6 @@ function DataViewer() {
             <Typography>{rowData?.Style}</Typography>
             <Typography>{rowData?.ownerName}</Typography>
           </Grid>
-          <Divider />
           <Typography variant="h6" className="section-header">Notes</Typography>
           <div className="notes-section">
             <TextField
@@ -365,17 +378,23 @@ function DataViewer() {
               onChange={handleNotesChange}
               variant="outlined"
               sx={{"& fieldset": { border: 'none'},}}
+              className="notes-text-field"
             />
           </div>
-          <Divider />
           <Typography variant="h6" className="section-header">Grooming record</Typography>
           <div className="grooming-record-section">
-            {rowData?.comments?.map((comment, index) => (
-              <Typography key={index}>
-                {/* Format the date and comment here */}
-                {comment.date} : {comment.text}
-              </Typography>
-            ))}
+            {rowData?.eventDates?.map((eventDate, index) => {
+              const [month, day, year] = formatDate(eventDate).split(' ');
+              return (
+                <div key={index} className="record-entry">
+                  <span className="material-symbols-outlined">flag</span>
+                  <span className="record-month">{month}</span>
+                  <span className="record-day">{day.replace(',', '')},</span>
+                  <span className="record-year">{year}:</span>
+                  <span className="record-comment">{rowData?.eventComments[index]}</span>
+                </div>
+              );
+            })}
           </div>
           {showSaveButton && (
             <Button variant="contained" color="primary" className="save-button" onClick={handleSaveChanges}>

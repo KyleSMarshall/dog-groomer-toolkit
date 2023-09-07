@@ -202,20 +202,46 @@
 .section-header {
   color: #4f998a;
   margin-bottom: 12px;
+  border-bottom: 1px solid #4f998a;
 }
 
-/* ... existing styles ... */
-
 .notes-section, .grooming-record-section {
-  height: 30%;  /* Set the maximum height in percentage */
-  overflow-y: auto;  /* Show vertical scrollbar when content overflows */
+  height: 30%;
+  overflow-y: auto;
 }
 
 .notes-section {
-  border: 1px solid #4f998a;
-  padding: 10px;
-  max-height: 40%;
+  border: 0;
+  padding-top: 10px;
+  margin-bottom: 10px;
+  scrollbar-color: #cee9e3; /* For Firefox */
+  scrollbar-width: thin;
   overflow-y: auto;
+}
+
+/* Styling the scrollbars */
+.notes-section::-webkit-scrollbar {
+  width: 12px;
+}
+
+.notes-section::-webkit-scrollbar-thumb {
+  background: #4f998a;
+  border-radius: 8px;
+}
+
+.notes-section::-webkit-scrollbar-thumb:hover {
+  background: #fff4f5;
+}
+
+
+.notes-text-field,
+.notes-text-field div,
+.notes-text-field textarea {
+  height: 100%;
+}
+.notes-text-field textarea {
+  position: absolute;
+  top: 0px;
 }
 
 /* Remove border from Material-UI TextField */
@@ -228,6 +254,33 @@
 .notes-section .MuiInputBase-root {
   width: 100%;
   padding: 0px;
+}
+
+.record-entry {
+  display: flex;
+  align-items: start;
+}
+.record-month,
+.record-day,
+.record-year {
+  display: inline-block;
+  text-align: right;  /* Ensure alignment */
+}
+.record-month {
+  flex-shrink: 0;
+  width: 30px;  /* Enough width for month abbreviation */
+}
+.record-day {
+  flex-shrink: 0;
+  width: 25px;  /* Enough width for the day */
+}
+.record-year {
+  flex-shrink: 0;
+  width: 42px;  /* Enough width for the year */
+}
+.record-comment {
+  flex-grow: 1;
+  padding-left: 10px;
 }
 
 

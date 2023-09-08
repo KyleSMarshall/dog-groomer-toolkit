@@ -304,3 +304,13 @@
   bottom: 16px;
   right: 16px;
 }
+
+.notes-confirmation-modal div.MuiDialogActions-spacing {
+  justify-content: center;
+}
+.notes-confirmation-modal button {
+  color: #4f998a;
+  font-weight: bold;
+  margin: auto;
+  font-size: medium;
+}

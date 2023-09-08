@@ -18,7 +18,7 @@ import {Amplify, DataStore} from 'aws-amplify';
 import '@aws-amplify/ui-react/styles.css';
 import { Event, Client, Dog } from './models';
 import { DataGrid, GridToolbarContainer, GridSearchIcon, GridToolbarQuickFilter} from '@mui/x-data-grid';
-import { Button, Modal, TextField, Grid, Typography, Divider } from '@mui/material';
+import { Button, Modal, TextField, Grid, Typography, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 
 import './DataViewer.css'
 
@@ -144,7 +144,10 @@ function DataViewer() {
   const [open, setOpen] = React.useState(false);
   const [rowData, setRowData] = React.useState(null);
   const [notes, setNotes] = React.useState('');
+  const [originalNotes, setOriginalNotes] = React.useState('');
   const [showSaveButton, setShowSaveButton] = React.useState(false);
+
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   
   const [activeView, setActiveView] = useState('dogs'); // default view is 'dogs'
@@ -157,23 +160,87 @@ function DataViewer() {
   const handleOpen = (params) => {
     setRowData(params.row);
     console.log(params.row);
-    setNotes(params.Notes || "");
+    setNotes(params.row.Notes || "");
+    setOriginalNotes(params.row.Notes || "");
     setShowSaveButton(false);
+    setShowConfirmModal(false);
     setOpen(true);
   };
   
   const handleClose = () => {
+    if (showSaveButton) {
+      setShowConfirmModal(true);
+    } else {
+        setOpen(false);
+    }
+  };
+
+  const handleSaveAndClose = async () => {
+    await handleSaveChanges();
     setOpen(false);
+    setShowConfirmModal(false);
+  };
+
+  const handleDiscardAndClose = () => {
+    setOpen(false);
+    setShowConfirmModal(false);
   };
   
   const handleNotesChange = (e) => {
-    setNotes(e.target.value);
-    setShowSaveButton(true);
+    const newNotes = e.target.value;
+    setNotes(newNotes);
+    if (newNotes !== originalNotes) {
+      setShowSaveButton(true);
+    } else {
+      setShowSaveButton(false);
+    }
   };
   
   const handleSaveChanges = () => {
-    // Save the changes to the database
-    setShowSaveButton(false);
+    // The main logic is wrapped inside an asynchronous helper function
+    const saveChangesAsync = async () => {
+      // Save the changes to the database
+      console.log(rowData);
+      const dogId = rowData.id || null;
+  
+      if (!dogId) {
+        console.error("No dog Id found. Aborting save.");
+        setOpen(false);
+        return;
+      }
+  
+      const dogOriginal = await DataStore.query(Dog, dogId);
+  
+      if (!dogOriginal) {
+        console.error("No matching dog record found. Aborting save.");
+        return;
+      }
+  
+      await DataStore.save(
+        Dog.copyOf(dogOriginal, updated => {
+          updated.Notes = notes;
+        })
+      );
+
+      // Locally update the corresponding dog's notes in the dogData state
+      const updatedDogData = dogData.map(row => {
+        if (row.id === dogId) {
+          return { ...row, Notes: notes };
+        }
+        return row;
+      });
+
+      // Update the dogData state with the new data
+      setDogData(updatedDogData)
+
+      setOriginalNotes(notes);
+      setShowSaveButton(false);
+    };
+  
+    // Invoke the helper function
+    saveChangesAsync().catch(error => {
+      console.error("Error saving changes:", error);
+    });
   };
   
 
@@ -326,6 +393,29 @@ function DataViewer() {
     );
   }
 
+  function ConfirmationModal() {
+    return (
+      <Dialog
+        open={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        className="notes-confirmation-modal"
+      >
+        <DialogTitle>Before you go...</DialogTitle>
+        <DialogContent>
+          Do you want to save your changes to notes?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDiscardAndClose}>
+              Discard
+          </Button>
+          <Button onClick={handleSaveAndClose}>
+              Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+    )
+  }
+
   function formatDate(isoDate) {
     const date = new Date(isoDate);
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -357,6 +447,7 @@ function DataViewer() {
           onRowDoubleClick={handleRowDoubleClick}
         />
       )}
+      <ConfirmationModal/>
       <Modal open={open} onClose={handleClose} style={{ outline: 'none' }}>
         <div className="modal-content">
           <Grid container justifyContent="space-between" className="modal-header">

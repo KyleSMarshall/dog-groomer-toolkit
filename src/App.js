@@ -12,6 +12,8 @@ import {
   DogUpdateForm, 
   EventCreateForm
 } from './ui-components';
+import { CreateDog } from './CustomForms';
+import './CustomForms.css';
 
 
 import {Amplify, DataStore} from 'aws-amplify';
@@ -20,7 +22,7 @@ import { Event, Client, Dog } from './models';
 import { DataGrid, GridToolbarContainer, GridSearchIcon, GridToolbarQuickFilter} from '@mui/x-data-grid';
 import { Button, Modal, TextField, Grid, Typography, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 
-import './DataViewer.css'
+import './DataViewer.css';
 
 // // Function to adjust padding
 // const adjustPadding = () => {
@@ -358,7 +360,7 @@ function DataViewer() {
       headerName: 'Notes',
       sortable: false,
       renderCell: (params) => (
-        <Button variant="contained" color="primary" onClick={() => handleOpen(params)}>
+        <Button variant="contained" color="primary" className='data-action-link' onClick={() => handleOpen(params)}>
           Notes
         </Button>
       ),
@@ -386,9 +388,9 @@ function DataViewer() {
       <GridToolbarContainer className='grid-toolbar-continer'>
         <Link to="/add-dog" className="data-action-link">Add Dog</Link>
         <Link to="/add-client" className="data-action-link">Add Client</Link>
+        <button className='data-action-link dog-view' onClick={() => setActiveView('dogs')}>View Dogs</button>
+        <button className='data-action-link event-view' onClick={() => setActiveView('events')}>View Events</button>
         <GridToolbarQuickFilter />
-        <button onClick={() => setActiveView('dogs')}>View Dogs</button>
-        <button onClick={() => setActiveView('events')}>View Events</button>
       </GridToolbarContainer>
     );
   }
@@ -490,7 +492,7 @@ function DataViewer() {
             })}
           </div>
           {showSaveButton && (
-            <Button variant="contained" color="primary" className="save-button" onClick={handleSaveChanges}>
+            <Button variant="contained" color="primary" className="save-button data-action-link" onClick={handleSaveChanges}>
               Save changes
             </Button>
           )}
@@ -520,7 +522,8 @@ function App() {
               {/* Content */}
               <div className="content">
                   <Routes>
-                      <Route path="/" element={<Calendar />} />
+                      {/*<Route path="/" element={<Calendar />} />*/}
+                      <Route path="/" element={<CreateDog />} />
                       <Route path="/Dataviewer" element={<DataViewer />} />
                       <Route path="/add-client" element={<ClientCreateForm />} />
                       <Route path="/add-dog" element={<DogCreateForm />} />

@@ -161,7 +161,6 @@ function DataViewer() {
 
   const handleOpen = (params) => {
     setRowData(params.row);
-    console.log(params.row);
     setNotes(params.row.Notes || "");
     setOriginalNotes(params.row.Notes || "");
     setShowSaveButton(false);
@@ -202,7 +201,6 @@ function DataViewer() {
     // The main logic is wrapped inside an asynchronous helper function
     const saveChangesAsync = async () => {
       // Save the changes to the database
-      console.log(rowData);
       const dogId = rowData.id || null;
   
       if (!dogId) {
@@ -333,7 +331,6 @@ function DataViewer() {
 
         // Finally, set the state variables
         setDogData(combinedDogData);
-        console.log(combinedDogData);
         setEventData(combinedEventData);
 
       } catch (error) {
@@ -390,7 +387,7 @@ function DataViewer() {
         <Link to="/add-client" className="data-action-link">Add Client</Link>
         <button className='data-action-link dog-view' onClick={() => setActiveView('dogs')}>View Dogs</button>
         <button className='data-action-link event-view' onClick={() => setActiveView('events')}>View Events</button>
-        <GridToolbarQuickFilter />
+        <GridToolbarQuickFilter id='dataviewer-quick-filter' />
       </GridToolbarContainer>
     );
   }
@@ -522,11 +519,10 @@ function App() {
               {/* Content */}
               <div className="content">
                   <Routes>
-                      {/*<Route path="/" element={<Calendar />} />*/}
-                      <Route path="/" element={<CreateDog />} />
+                      <Route path="/" element={<Calendar />} />
                       <Route path="/Dataviewer" element={<DataViewer />} />
                       <Route path="/add-client" element={<ClientCreateForm />} />
-                      <Route path="/add-dog" element={<DogCreateForm />} />
+                      <Route path="/add-dog" element={<CreateDog />} />
                       <Route path="/create-event" element={<EventCreateForm />} />
                   </Routes>
               </div>

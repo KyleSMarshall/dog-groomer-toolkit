@@ -20,6 +20,34 @@
   background: #4f998a;
 }
 
+.MuiDataGrid-toolbarContainer > a,
+.MuiDataGrid-toolbarContainer > button {
+  width:18%;
+  max-width: 300px;
+}
+.MuiDataGrid-toolbarContainer > div {
+  width: 28%;
+}
+
+.MuiDataGrid-toolbarContainer {
+  flex-wrap: nowrap !important;
+}
+
+#dataviewer-quick-filter {
+  border: 0px;
+  margin: 0px;
+}
+
+.MuiDataGrid-toolbarContainer .MuiFormControl-root .MuiInputBase-root button {
+  width: 10%;
+}
+
+.MuiDataGrid-toolbarContainer .MuiFormControl-root .MuiInputBase-root::before,
+.MuiDataGrid-toolbarContainer .MuiFormControl-root .MuiInputBase-root::after {
+  border: 0px !important;
+}
+
+
 .MuiDataGrid-columnHeaders {
   border-bottom: 1px solid #e0e0e0;
 }

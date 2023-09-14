@@ -26,7 +26,6 @@ import {
 import { Dog, Client as Client0 } from "../models";
 import { fetchByPath, validateField } from "./utils";
 import { DataStore } from "aws-amplify";
-import { useNavigate } from 'react-router-dom';
 function ArrayField({
   items = [],
   onChange,
@@ -81,7 +80,6 @@ function ArrayField({
       setIsEditing(false);
     }
   };
-
   const arraySection = (
     <React.Fragment>
       {!!items?.length && (
@@ -141,9 +139,6 @@ function ArrayField({
       </React.Fragment>
     );
   }
-
-  
-  
   return (
     <React.Fragment>
       {labelElement}
@@ -208,7 +203,6 @@ export default function DogCreateForm(props) {
     Client: undefined,
     Notes: "",
   };
-  const navigate = useNavigate();
   const [Name, setName] = React.useState(initialValues.Name);
   const [Breed, setBreed] = React.useState(initialValues.Breed);
   const [Age, setAge] = React.useState(initialValues.Age);
@@ -706,7 +700,6 @@ export default function DogCreateForm(props) {
             type="button"
             onClick={() => {
               onCancel && onCancel();
-              navigate("/Dataviewer");
             }}
             {...getOverrideProps(overrides, "CancelButton")}
           ></Button>

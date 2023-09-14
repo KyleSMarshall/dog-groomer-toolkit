@@ -250,6 +250,7 @@
 .notes-text-field textarea {
   position: absolute;
   top: 0px;
+  width: -webkit-fill-available;
 }
 
 /* Remove border from Material-UI TextField */

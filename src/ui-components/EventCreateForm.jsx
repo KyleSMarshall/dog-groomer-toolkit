@@ -6,7 +6,6 @@
 
 /* eslint-disable */
 import * as React from "react";
-import { DataContext } from "../App";
 import {
   Button,
   Divider,
@@ -19,9 +18,7 @@ import { getOverrideProps } from "@aws-amplify/ui-react/internal";
 import { Event } from "../models";
 import { fetchByPath, validateField } from "./utils";
 import { DataStore } from "aws-amplify";
-import { useNavigate } from 'react-router-dom';
 export default function EventCreateForm(props) {
-  const dogContext = React.useContext(DataContext);
   const {
     clearOnSuccess = true,
     onSuccess,
@@ -34,20 +31,20 @@ export default function EventCreateForm(props) {
     ...rest
   } = props;
   const initialValues = {
-    Dog: dogContext.selectedData.Name,
+    Field0: "",
     Time_Start: "",
     Time_End: "",
     Type: "",
     Comments: "",
   };
-  const [Dog, setDog] = React.useState(initialValues.Dog);
+  const [Field0, setField0] = React.useState(initialValues.Field0);
   const [Time_Start, setTime_Start] = React.useState(initialValues.Time_Start);
   const [Time_End, setTime_End] = React.useState(initialValues.Time_End);
   const [Type, setType] = React.useState(initialValues.Type);
   const [Comments, setComments] = React.useState(initialValues.Comments);
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
-    setDog(initialValues.Dog);
+    setField0(initialValues.Field0);
     setTime_Start(initialValues.Time_Start);
     setTime_End(initialValues.Time_End);
     setType(initialValues.Type);
@@ -55,7 +52,7 @@ export default function EventCreateForm(props) {
     setErrors({});
   };
   const validations = {
-    Dog: [{ type: "Required" }],
+    Field0: [{ type: "Required" }],
     Time_Start: [{ type: "Required" }],
     Time_End: [{ type: "Required" }],
     Type: [{ type: "Required" }],
@@ -95,9 +92,6 @@ export default function EventCreateForm(props) {
     }, {});
     return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}`;
   };
-
-  const navigate = useNavigate();
-
   return (
     <Grid
       as="form"
@@ -107,7 +101,7 @@ export default function EventCreateForm(props) {
       onSubmit={async (event) => {
         event.preventDefault();
         let modelFields = {
-          Dog,
+          Field0,
           Time_Start,
           Time_End,
           Type,
@@ -142,7 +136,6 @@ export default function EventCreateForm(props) {
             }
           });
           const modelFieldsToSave = {
-            eventDogId: dogContext.selectedData.id,
             Time_Start: modelFields.Time_Start,
             Time_End: modelFields.Time_End,
             Type: modelFields.Type,
@@ -151,11 +144,9 @@ export default function EventCreateForm(props) {
           await DataStore.save(new Event(modelFieldsToSave));
           if (onSuccess) {
             onSuccess(modelFields);
-            navigate("/Dataviewer");
           }
           if (clearOnSuccess) {
             resetStateValues();
-            navigate("/Dataviewer");
           }
         } catch (err) {
           if (onError) {
@@ -178,31 +169,29 @@ export default function EventCreateForm(props) {
       <TextField
         label="Dog"
         isRequired={true}
-        value={Dog}
+        value={Field0}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
-              Dog: value,
+              Field0: value,
               Time_Start,
               Time_End,
               Type,
               Comments,
             };
             const result = onChange(modelFields);
-            value = result?.Dog ?? value;
+            value = result?.Field0 ?? value;
           }
-          if (errors.Dog?.hasError) {
-            runValidationTasks("Dog", value);
+          if (errors.Field0?.hasError) {
+            runValidationTasks("Field0", value);
           }
-          setDog(value);
+          setField0(value);
         }}
-        onBlur={() => runValidationTasks("Dog", Dog)}
-        errorMessage={errors.Dog?.errorMessage}
-        hasError={errors.Dog?.hasError}
-        {...getOverrideProps(overrides, "Dog")}
-        isReadOnly={true}
-        id="dog-input-field"
+        onBlur={() => runValidationTasks("Field0", Field0)}
+        errorMessage={errors.Field0?.errorMessage}
+        hasError={errors.Field0?.hasError}
+        {...getOverrideProps(overrides, "Field0")}
       ></TextField>
       <TextField
         label="Time start"
@@ -215,7 +204,7 @@ export default function EventCreateForm(props) {
             e.target.value === "" ? "" : new Date(e.target.value).toISOString();
           if (onChange) {
             const modelFields = {
-              Dog,
+              Field0,
               Time_Start: value,
               Time_End,
               Type,
@@ -245,7 +234,7 @@ export default function EventCreateForm(props) {
             e.target.value === "" ? "" : new Date(e.target.value).toISOString();
           if (onChange) {
             const modelFields = {
-              Dog,
+              Field0,
               Time_Start,
               Time_End: value,
               Type,
@@ -273,7 +262,7 @@ export default function EventCreateForm(props) {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
-              Dog,
+              Field0,
               Time_Start,
               Time_End,
               Type: value,
@@ -301,7 +290,7 @@ export default function EventCreateForm(props) {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
-              Dog,
+              Field0,
               Time_Start,
               Time_End,
               Type,

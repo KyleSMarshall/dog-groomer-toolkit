@@ -12,7 +12,8 @@ import {
   DogUpdateForm, 
   EventCreateForm
 } from './ui-components';
-import { CreateDog } from './CustomForms';
+import { CreateDog, UpdateDog } from './CustomDogForms';
+import { CreateClient } from './CustomClientForms';
 import './CustomForms.css';
 
 
@@ -215,7 +216,7 @@ function DataViewer() {
         console.error("No matching dog record found. Aborting save.");
         return;
       }
-  
+      
       await DataStore.save(
         Dog.copyOf(dogOriginal, updated => {
           updated.Notes = notes;
@@ -247,7 +248,7 @@ function DataViewer() {
   const handleRowDoubleClick = (params) => {
     const eventData = params.row;
     setSelectedData(eventData);
-    navigate("/create-event");
+    navigate("/update-dog");
   };
 
   React.useEffect(() => {
@@ -280,11 +281,26 @@ function DataViewer() {
         for (let dogId in dogEventsLookup) {
           dogEventsLookup[dogId].sort((a, b) => new Date(a.date) - new Date(b.date));
         }
+        
+        const dateDifferenceInYears = (dateStr) => {
+          if (!dateStr) {
+            return '';
+          }
+          const currentDate = new Date();
+          const inputDate = new Date(dateStr);
+          // Calculate the difference in milliseconds
+          const differenceInMillis = currentDate - inputDate;
+          // Convert milliseconds to years
+          const differenceInYears = differenceInMillis / (1000 * 60 * 60 * 24 * 365.25);
+          // Return years rounded to 1 decimal place
+          return differenceInYears.toFixed(1);
+        } 
 
         // Transform dogs to include related owner and most recent event data
         const combinedDogData = dogs.map(dog => {
           const relatedOwner = ownerLookup[dog.dogClientId];
           const dogEvents = dogEventsLookup[dog.id] || [];
+          const dogAgeDisplay = dateDifferenceInYears(dog.Age);
           //const mostRecentEvent = mostRecentEventLookup[dog.id];
           //const mostRecentEventDate = mostRecentEvent ? new Date(mostRecentEvent.date).toISOString().split('T')[0] : "N/A";
           //const eventType = mostRecentEvent ? mostRecentEvent.type : "N/A";
@@ -297,7 +313,8 @@ function DataViewer() {
             ownerName: relatedOwner ? relatedOwner.Name : 'N/A', 
             ownerNumber: relatedOwner ? relatedOwner.Phone_Number : 'N/A',
             eventDates: eventDates, 
-            eventComments: eventComments, 
+            eventComments: eventComments,
+            dogAgeDisplay: dogAgeDisplay,
           };
         });
 
@@ -348,7 +365,7 @@ function DataViewer() {
     { field: 'ownerNumber', headerName: 'Phone Number', width: 170 },
     { field: 'mostRecentEventDate', headerName: 'Last Appt.', width: 150 },
     { field: 'Planned_Frequency', headerName: 'Planned Frequency', width: 200 },
-    { field: 'Age', headerName: 'Age', width: 100 },
+    { field: 'dogAgeDisplay', headerName: 'Age', width: 100 },
     { field: 'Temperment', headerName: 'Temperament', width: 160 },
     { field: 'Style', headerName: 'Style', width: 150 },
     { field: 'eventComments', headerName: 'Comments', width: 350 },
@@ -521,8 +538,9 @@ function App() {
                   <Routes>
                       <Route path="/" element={<Calendar />} />
                       <Route path="/Dataviewer" element={<DataViewer />} />
-                      <Route path="/add-client" element={<ClientCreateForm />} />
+                      <Route path="/add-client" element={<CreateClient />} />
                       <Route path="/add-dog" element={<CreateDog />} />
+                      <Route path="/update-dog" element={<UpdateDog />} />
                       <Route path="/create-event" element={<EventCreateForm />} />
                   </Routes>
               </div>

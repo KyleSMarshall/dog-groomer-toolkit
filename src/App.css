@@ -28,12 +28,21 @@
 }
 
 .fc-daygrid-event-dot {
-  border-color: #cee9e3;
+  border-color: #4f998a;
 }
 
 .fc-daygrid-day-top a:hover {
   cursor: pointer;
   font-weight: bolder;
+}
+
+.fc-dayview-title-custom {
+  color: #4f998a;
+  font-weight: bold;
+}
+
+.calendar-container {
+  height: 100%;
 }
 
 .App-header {

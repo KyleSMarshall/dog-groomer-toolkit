@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { DataStore } from 'aws-amplify';
 import { useNavigate } from 'react-router-dom';
 import { Dog, Event, Client } from './models';
-import { TextField, Button, Autocomplete, Modal } from '@mui/material';
+import { TextField, Button, Autocomplete, Modal, Select, MenuItem } from '@mui/material';
 import { DataContext } from './App';
 
 export function CreateDog() {

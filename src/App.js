@@ -48,6 +48,46 @@ const DataContext = React.createContext();
 function Calendar() {
   const calendarRef = useRef(null);
   const [events, setEvents] = React.useState([]);
+  // State for modal visibility
+  const [isModalOpen, setModalOpen] = useState(false);
+  // State for the event that was clicked
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
+  // Handler for event double click
+  const handleEventDoubleClick = (info) => {
+      if (info.view.type === 'timeGridDay') {
+          setSelectedEvent(info.event);
+          setModalOpen(true);
+      }
+  };
+
+  // Close modal function
+  const closeModal = () => {
+    setModalOpen(false);
+    setSelectedEvent(null);
+  };
+
+  // Update event function (you'd likely want to send updates to your backend here)
+  const updateEvent = (updatedEventData) => {
+    // Example: 
+    // await DataStore.save(Event.copyOf(selectedEvent, updated => { ...updatedEventData }));
+    closeModal();
+  };
+
+  const formatToHourAndMinutes = (datetimeStr) => {
+    let hours = parseInt(datetimeStr.slice(11, 13), 10);
+    const minutes = datetimeStr.slice(14, 16);
+
+    let period = 'AM';
+    if (hours >= 12) {
+        period = 'PM';
+        if (hours > 12) hours -= 12;
+    } else if (hours === 0) {
+        hours = 12; // for midnight
+    }
+
+    return `${hours}:${minutes} ${period}`;
+  };
 
   React.useEffect(() => {
 
@@ -78,17 +118,25 @@ function Calendar() {
           const clientName = client ? client.Name : "";
           const clientPhoneNumber = client ? client.Phone_Number : "";
           const apptType = event ? event.Type : "";
+          const apptTime = formatToHourAndMinutes(event.Time_Start);
 
-          const title = `Dog: ${dogName} - ${dogBreed}\nOwner: ${clientName} - ${clientPhoneNumber}\nAppt. Type: ${apptType}`;
+          const title = `${dogName}-${dogBreed}-${apptTime}`;
 
           return {
-              start: event.Time_Start,
-              end: event.Time_End,
-              title: title,
-              id: event.id,
-          };
+            dogName: dog.Name,
+            dogId: dog.id,
+            dogBreed: dog.Breed,
+            dogStyle: dog.Style,
+            clientName: client.Name,
+            clientNumber: client.Phone_Number,
+            apptTime: apptTime,
+            start: event.Time_Start,
+            type: event.Type,
+            end: event.Time_End,
+            title: title,
+            id: event.id,
+        };
         });
-      
         setEvents(transformedEvents);
       } catch (error) {
         console.error("Error fetching events:", error);
@@ -98,6 +146,31 @@ function Calendar() {
     fetchEvents();
   }, []);
 
+  const renderEventContent = (eventInfo) => {
+    const { dogName, dogBreed, dogStyle, clientName, clientNumber, type, apptTime } = eventInfo.event.extendedProps;
+  
+    if (eventInfo.view.type === 'dayGridMonth') {
+      // Title for month view
+      return (
+        <>
+        <div className='fc-daygrid-event-dot'></div>
+        <div className='fc-event-title'>{`${dogName}-${dogBreed}-${apptTime}`}</div>
+        </>
+      );
+    } else {
+      // Title for day view or any other view
+      return (
+        <>
+        <div className='fc-dayview-title-custom'>
+        {`${dogName} - ${dogBreed} - ${type}`}
+        <br />
+        {`${clientName} - ${clientNumber}`}
+        </div>
+        </>
+      );
+    }
+  };
+
   const handleDateClick = (arg) => {
     if (arg.view.type === 'dayGridMonth') {
       const calendarApi = calendarRef.current.getApi();
@@ -106,25 +179,46 @@ function Calendar() {
   }
 
   return (
-    <FullCalendar
-      ref={calendarRef}
-      plugins={[ dayGridPlugin, timeGridPlugin, interactionPlugin ]}
-      dateClick={handleDateClick}
-      initialView='dayGridMonth'
-      weekends={true}
-      headerToolbar={{
-        left: 'prev,next today',
-        center: 'title',
-        right: 'dayGridMonth,timeGridWeek,timeGridDay'
-      }}
-      slotMinTime={"08:00:00"}
-      slotMaxTime={"19:00:00"}
-      nowIndicator={true}
-      allDaySlot={false}
-      expandRows={true}
-      events={events}
-      height={'100%'}
-    />
+    <div className='calendar-container'>
+      <FullCalendar
+        ref={calendarRef}
+        plugins={[ dayGridPlugin, timeGridPlugin, interactionPlugin ]}
+        dateClick={handleDateClick}
+        initialView='dayGridMonth'
+        weekends={true}
+        headerToolbar={{
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        }}
+        slotMinTime={"08:00:00"}
+        slotMaxTime={"19:00:00"}
+        nowIndicator={true}
+        allDaySlot={false}
+        expandRows={true}
+        events={events}
+        height={'100%'}
+        eventContent={renderEventContent}
+        eventClick={handleEventDoubleClick}
+      />
+      <Modal
+        open={isModalOpen}
+        onClose={closeModal}
+      >
+        <div style={{ padding: "20px", background: "#fff", margin: "30vh auto", maxWidth: "400px", borderRadius: "5px"}}>
+            {/* This is a simple edit form. Depending on your needs, 
+                  you might want to expand on this with more fields and validations. */}
+            <h2>Edit Event</h2>
+            <input 
+                defaultValue={selectedEvent ? selectedEvent.title : ''} 
+                placeholder="Title" 
+                onChange={(e) => setSelectedEvent(prev => ({ ...prev, title: e.target.value }))} 
+            />
+            <Button onClick={() => updateEvent({ title: selectedEvent.title })}>Save</Button>
+            <Button onClick={closeModal}>Cancel</Button>
+        </div>
+      </Modal>
+    </div>
   );
 }
 

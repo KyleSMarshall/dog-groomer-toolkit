@@ -351,6 +351,7 @@ export default function EventUpdateForm(props) {
               }
             })
           );
+          window.location.reload();
           if (onSuccess) {
             onSuccess(modelFields);
           }

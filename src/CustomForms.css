@@ -77,6 +77,29 @@
     color: #ffffff;
 }
 
+.MuiModal-root .amplify-button[type="submit"],
+.MuiModal-root .amplify-button[type="reset"] {
+    visibility: hidden;
+}
+
+#event-update-save,
+#event-update-cancel {
+    padding: 10px 20px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+    background-color: #4f998a;
+    color: #ffffff;
+}
+
+#event-update-button-container {
+    display: flex;
+    justify-content: center;
+}
+
 .form-container button:last-child {
     background-color: #b8d5cd;
 }

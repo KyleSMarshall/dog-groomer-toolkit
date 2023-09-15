@@ -10,10 +10,11 @@ import {
   ClientUpdateForm, 
   DogCreateForm, 
   DogUpdateForm, 
-  EventCreateForm
+  EventCreateForm,
+  EventUpdateForm
 } from './ui-components';
 import { CreateDog, UpdateDog } from './CustomDogForms';
-import { CreateClient } from './CustomClientForms';
+import { CreateClient, UpdateClient } from './CustomClientForms';
 import './CustomForms.css';
 
 
@@ -22,6 +23,9 @@ import '@aws-amplify/ui-react/styles.css';
 import { Event, Client, Dog } from './models';
 import { DataGrid, GridToolbarContainer, GridSearchIcon, GridToolbarQuickFilter} from '@mui/x-data-grid';
 import { Button, Modal, TextField, Grid, Typography, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { DateTimePicker } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
 import './DataViewer.css';
 
@@ -52,6 +56,7 @@ function Calendar() {
   const [isModalOpen, setModalOpen] = useState(false);
   // State for the event that was clicked
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [value, setValue] = useState('');
 
   // Handler for event double click
   const handleEventDoubleClick = (info) => {
@@ -66,6 +71,13 @@ function Calendar() {
     setModalOpen(false);
     setSelectedEvent(null);
   };
+
+  const handleEventSave = async () => {
+      let button = document.querySelector('.amplify-button[type="submit"]');
+      if (button) {
+        button.click();
+      }
+  }
 
   // Update event function (you'd likely want to send updates to your backend here)
   const updateEvent = (updatedEventData) => {
@@ -205,17 +217,30 @@ function Calendar() {
         open={isModalOpen}
         onClose={closeModal}
       >
-        <div style={{ padding: "20px", background: "#fff", margin: "30vh auto", maxWidth: "400px", borderRadius: "5px"}}>
-            {/* This is a simple edit form. Depending on your needs, 
-                  you might want to expand on this with more fields and validations. */}
+        
+        <div style={{ padding: "20px", background: "#fff", margin: "10vh auto", maxWidth: "400px", borderRadius: "5px"}}>
+            {/**
             <h2>Edit Event</h2>
             <input 
                 defaultValue={selectedEvent ? selectedEvent.title : ''} 
                 placeholder="Title" 
                 onChange={(e) => setSelectedEvent(prev => ({ ...prev, title: e.target.value }))} 
             />
-            <Button onClick={() => updateEvent({ title: selectedEvent.title })}>Save</Button>
-            <Button onClick={closeModal}>Cancel</Button>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DateTimePicker 
+                value={value ? value : "Select a date"} 
+                onChange={(newValue) => setValue(newValue)} 
+                defaultValue={'yy'}
+              />
+            </LocalizationProvider>
+        */}
+            <EventUpdateForm
+              id={selectedEvent ? selectedEvent.id : ''}
+            />
+            <div id="event-update-button-container">
+              <Button id="event-update-cancel" onClick={closeModal}>Cancel</Button>
+              <Button id="event-update-save" onClick={handleEventSave}>Save</Button>
+            </div>
         </div>
       </Modal>
     </div>
@@ -252,6 +277,7 @@ function DataViewer() {
   const [dogData, setDogData] = useState([]);
   const [eventData, setEventData] = useState([]);
   const { setSelectedData } = React.useContext(DataContext);
+  const [selectedRows, setSelectedRows] = useState([]);
   const navigate = useNavigate();
 
   const handleOpen = (params) => {
@@ -342,7 +368,21 @@ function DataViewer() {
   const handleRowDoubleClick = (params) => {
     const eventData = params.row;
     setSelectedData(eventData);
+    navigate("/create-event");
+  };
+
+  const handleDogUpdateClick = () => {
+    setSelectedData(selectedRows[0]);
     navigate("/update-dog");
+  };
+
+  const handleClientUpdateClick = () => {
+    let clientObject = {}
+    clientObject.Name = selectedRows[0].ownerName;
+    clientObject.Phone_Number = selectedRows[0].ownerNumber;
+    clientObject.id = selectedRows[0].dogClientId;
+    setSelectedData(clientObject);
+    navigate("/update-client");
   };
 
   React.useEffect(() => {
@@ -496,8 +536,21 @@ function DataViewer() {
       <GridToolbarContainer className='grid-toolbar-continer'>
         <Link to="/add-dog" className="data-action-link">Add Dog</Link>
         <Link to="/add-client" className="data-action-link">Add Client</Link>
-        <button className='data-action-link dog-view' onClick={() => setActiveView('dogs')}>View Dogs</button>
-        <button className='data-action-link event-view' onClick={() => setActiveView('events')}>View Events</button>
+        <button 
+          className='data-action-link dog-view' 
+          disabled={selectedRows.length === 0} 
+          onClick={handleDogUpdateClick}
+        >
+          Edit Dog
+        </button>
+        <button 
+          className='data-action-link dog-view' 
+          disabled={selectedRows.length === 0} 
+          onClick={handleClientUpdateClick}
+        >
+          Edit Client
+        </button>
+        
         <GridToolbarQuickFilter id='dataviewer-quick-filter' />
       </GridToolbarContainer>
     );
@@ -534,29 +587,18 @@ function DataViewer() {
 
   return (
     <div className="grid-container">
-      {/* Conditional rendering based on activeView */}
-      {activeView === 'dogs' && (
-        <DataGrid 
-          rows={dogData} 
-          columns={dogColumns} 
-          pageSize={10} 
-          components={{
-            Toolbar: CustomToolbar,
-          }}
-          onRowDoubleClick={handleRowDoubleClick}
-        />
-      )}
-      {activeView === 'events' && (
-        <DataGrid 
-          rows={eventData} 
-          columns={eventColumns} 
-          pageSize={10} 
-          components={{
-            Toolbar: CustomToolbar,
-          }}
-          onRowDoubleClick={handleRowDoubleClick}
-        />
-      )}
+      <DataGrid 
+        rows={dogData} 
+        columns={dogColumns} 
+        pageSize={10} 
+        components={{
+          Toolbar: CustomToolbar,
+        }}
+        onRowClick={(param) => {
+          setSelectedRows([param.row]);
+        }}
+        onRowDoubleClick={handleRowDoubleClick}
+      />
       <ConfirmationModal/>
       <Modal open={open} onClose={handleClose} style={{ outline: 'none' }}>
         <div className="modal-content">
@@ -635,6 +677,7 @@ function App() {
                       <Route path="/add-client" element={<CreateClient />} />
                       <Route path="/add-dog" element={<CreateDog />} />
                       <Route path="/update-dog" element={<UpdateDog />} />
+                      <Route path="/update-client" element={<UpdateClient />} />
                       <Route path="/create-event" element={<EventCreateForm />} />
                   </Routes>
               </div>

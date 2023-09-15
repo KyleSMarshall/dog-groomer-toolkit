@@ -5,22 +5,23 @@
  **************************************************************************/
 
 import * as React from "react";
-import { DividerProps, GridProps, HeadingProps, TextFieldProps } from "@aws-amplify/ui-react";
+import { AutocompleteProps, DividerProps, GridProps, HeadingProps, TextFieldProps } from "@aws-amplify/ui-react";
 import { EscapeHatchProps } from "@aws-amplify/ui-react/internal";
+import { Dog as Dog0 } from "../models";
 export declare type ValidationResponse = {
     hasError: boolean;
     errorMessage?: string;
 };
 export declare type ValidationFunction<T> = (value: T, validationResponse: ValidationResponse) => ValidationResponse | Promise<ValidationResponse>;
 export declare type EventCreateFormInputValues = {
-    Field0?: string;
+    Dog?: Dog0;
     Time_Start?: string;
     Time_End?: string;
     Type?: string;
     Comments?: string;
 };
 export declare type EventCreateFormValidationValues = {
-    Field0?: ValidationFunction<string>;
+    Dog?: ValidationFunction<Dog0>;
     Time_Start?: ValidationFunction<string>;
     Time_End?: ValidationFunction<string>;
     Type?: ValidationFunction<string>;
@@ -31,7 +32,7 @@ export declare type EventCreateFormOverridesProps = {
     EventCreateFormGrid?: PrimitiveOverrideProps<GridProps>;
     SectionalElement0?: PrimitiveOverrideProps<HeadingProps>;
     SectionalElement1?: PrimitiveOverrideProps<DividerProps>;
-    Field0?: PrimitiveOverrideProps<TextFieldProps>;
+    Dog?: PrimitiveOverrideProps<AutocompleteProps>;
     Time_Start?: PrimitiveOverrideProps<TextFieldProps>;
     Time_End?: PrimitiveOverrideProps<TextFieldProps>;
     Type?: PrimitiveOverrideProps<TextFieldProps>;

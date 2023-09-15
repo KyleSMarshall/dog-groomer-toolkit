@@ -166,6 +166,15 @@
   border: none;
 }
 
+.data-action-link:disabled {
+  background-color: rgb(214, 212, 212) !important;
+  color: whitesmoke !important;
+}
+.data-action-link:disabled:hover {
+  background-color: rgb(214, 212, 212) !important;
+  color: whitesmoke !important;
+}
+
 .data-action-link:hover {
   background-color: #e6f0f2 !important;
 }

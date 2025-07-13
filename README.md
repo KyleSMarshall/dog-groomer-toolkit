@@ -1,70 +1,47 @@
-# Getting Started with Create React App
+# Dog Groomer Toolkit
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A full-stack scheduling and management tool for dog groomers — built with **React**, **AWS Amplify DataStore**, **AWS Lambda**, **AWS SNS**, **FullCalendar**, and **MUI DataGrid**.
 
-## Available Scripts
+I built this for my sister, who is a very talented dog groomer and works independently. Her one complaint was there there was so software available with an intuitive UI and calendar functionality that allowed her to manage human contacts, dog contacts, and schedule appointments all in one relational database.
+Prior to building this, I had zero experience in AWS. I learned the Azure ecosystem from the ground up during my time at Axis. I wore many hats as a solutions architect, MLops pipeline developer, data scientist/engineer. 
+I was excited to explore the similarities and differences between the AWS and Azure ecosystem as part of this project. Furthermore, I was excited to explore how quickly I could learn and leverage AWS to launch an end-to-end CRUD responsive (phone, PC, iPad) calendar webapp with offline availability and automated appointment text-message reminders.
+The entire project was completed, online, and delivered in 3 weeks.
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## 📌 Overview
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+This app lets dog grooming businesses:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- 🐶 **Manage Clients & Dogs**: Create, edit, and delete records for dogs and their owners.
+- 📅 **Schedule Appointments**: View and manage bookings in a modern calendar UI.
+- 📊 **Analyze Data**: Use a rich table viewer with filters to find records quickly.
 
-### `npm test`
+Built as a hands-on project to learn AWS Amplify, GraphQL models, and React from scratch.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## ⚙️ Tech Stack
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- **Frontend**: React (Hooks, Context API, React Router)
+- **Backend**: AWS Amplify DataStore (GraphQL models, offline-first sync)
+- **UI Libraries**:
+  - [Material UI](https://mui.com/) (DataGrid, Modals, Autocomplete)
+  - [FullCalendar](https://fullcalendar.io/) for interactive scheduling
+- **Date Utilities**: Day.js for formatting
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 🚀 Features
 
-### `npm run eject`
+- Dynamic CRUD forms for Dogs, Clients, and Events
+- Age calculation logic (date-of-birth ↔️ age input)
+- Lookup dropdowns (Dogs linked to Clients)
+- Inline field validation with visual error feedback
+- Calendar view + DataGrid table view
+- Success/error modals for user feedback
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+---
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 📂 Project Structure
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)

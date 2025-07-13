@@ -29,27 +29,10 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
 import './DataViewer.css';
 
-// // Function to adjust padding
-// const adjustPadding = () => {
-//   const header = document.querySelector('.header-wrapper');
-//   const content = document.querySelector('.content');
-
-//   if (header) {
-//     const headerHeight = header.offsetHeight + 10;
-//     // Set the padding top of the content to the height of the header
-//     content.style.paddingTop = `${headerHeight}px`;
-//   }
-// };
-
-// // Call the function once initially
-// adjustPadding();
-
-// // Adjust padding whenever the window is resized
-// window.addEventListener('resize', adjustPadding);
-
 const DataContext = React.createContext();
 
 function Calendar() {
+  const [loading, setLoading] = useState(true);
   const calendarRef = useRef(null);
   const [events, setEvents] = React.useState([]);
   // State for modal visibility
@@ -79,17 +62,13 @@ function Calendar() {
       }
   }
 
-  // Update event function (you'd likely want to send updates to your backend here)
   const updateEvent = (updatedEventData) => {
-    // Example: 
-    // await DataStore.save(Event.copyOf(selectedEvent, updated => { ...updatedEventData }));
     closeModal();
   };
 
   const formatToHourAndMinutes = (datetimeStr) => {
     let hours = parseInt(datetimeStr.slice(11, 13), 10);
     const minutes = datetimeStr.slice(14, 16);
-
     let period = 'AM';
     if (hours >= 12) {
         period = 'PM';
@@ -97,19 +76,12 @@ function Calendar() {
     } else if (hours === 0) {
         hours = 12; // for midnight
     }
-
     return `${hours}:${minutes} ${period}`;
   };
 
   React.useEffect(() => {
-
-    // adjustPadding();
-    // window.addEventListener('resize', adjustPadding);
-
-    // // Cleanup
-    // window.removeEventListener('resize', adjustPadding);
-    
     const fetchEvents = async () => {
+      setLoading(true);  // Show loading spinner while the data loads
       try {
         const eventData = await DataStore.query(Event);
         const dogData = await DataStore.query(Dog);
@@ -124,16 +96,13 @@ function Calendar() {
         const transformedEvents = eventData.map(event => {
           const dog = dogLookup[event.eventDogId];
           const client = clientLookup[dog.dogClientId];
-
           const dogName = dog ? dog.Name : "";
           const dogBreed = dog ? dog.Breed : "";
           const clientName = client ? client.Name : "";
           const clientPhoneNumber = client ? client.Phone_Number : "";
           const apptType = event ? event.Type : "";
           const apptTime = formatToHourAndMinutes(event.Time_Start);
-
           const title = `${dogName}-${dogBreed}-${apptTime}`;
-
           return {
             dogName: dog.Name,
             dogId: dog.id,
@@ -152,9 +121,10 @@ function Calendar() {
         setEvents(transformedEvents);
       } catch (error) {
         console.error("Error fetching events:", error);
-      }
-      
-    }
+      } finally {
+        setLoading(false);
+      }    
+    };
     fetchEvents();
   }, []);
 
@@ -192,6 +162,11 @@ function Calendar() {
 
   return (
     <div className='calendar-container'>
+      {loading ? (
+        <div className="loading-spinner">
+          <CircularProgress />
+        </div>
+      ) : (
       <FullCalendar
         ref={calendarRef}
         plugins={[ dayGridPlugin, timeGridPlugin, interactionPlugin ]}
@@ -213,6 +188,7 @@ function Calendar() {
         eventContent={renderEventContent}
         eventClick={handleEventDoubleClick}
       />
+      )}
       <Modal
         open={isModalOpen}
         onClose={closeModal}
@@ -263,6 +239,7 @@ function SideMenu() {
 }
 
 function DataViewer() {
+  const [loading, setLoading] = useState(true);
   const [open, setOpen] = React.useState(false);
   const [rowData, setRowData] = React.useState(null);
   const [notes, setNotes] = React.useState('');
@@ -353,7 +330,6 @@ function DataViewer() {
 
       // Update the dogData state with the new data
       setDogData(updatedDogData)
-
       setOriginalNotes(notes);
       setShowSaveButton(false);
     };
@@ -388,6 +364,7 @@ function DataViewer() {
   React.useEffect(() => {
     
     const fetchEvents = async () => {
+      setLoading(true);
       try {
         // Query all the dogs and owners
         const dogs = await DataStore.query(Dog);
@@ -486,9 +463,10 @@ function DataViewer() {
 
       } catch (error) {
         console.error("Error fetching events:", error);
+      } finally {
+        setLoading(false);
       }
-      
-    }
+    };
     fetchEvents();
   }, []);
 
@@ -587,6 +565,11 @@ function DataViewer() {
 
   return (
     <div className="grid-container">
+    {loading ? (
+      <div className="loading-spinner">
+          <CircularProgress />
+        </div>
+      ) : (
       <DataGrid 
         rows={dogData} 
         columns={dogColumns} 
@@ -599,6 +582,7 @@ function DataViewer() {
         }}
         onRowDoubleClick={handleRowDoubleClick}
       />
+      )}
       <ConfirmationModal/>
       <Modal open={open} onClose={handleClose} style={{ outline: 'none' }}>
         <div className="modal-content">
@@ -654,13 +638,26 @@ function DataViewer() {
 
 function App() {
   const [selectedData, setSelectedData] = useState();
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const headerRef = useRef();
+
+  React.useEffect(() => {
+    const updateHeaderHeight = () => {
+      if (headerRef.current) {
+        setHeaderHeight(headerRef.current.offsetHeight + 10);
+      }
+    };
+    updateHeaderHeight();
+    window.addEventListener('resize', updateHeaderHeight);
+    return () => window.removeEventListener('resize', updateHeaderHeight);
+  }, []);
 
   return (
       <Router>
         <DataContext.Provider value={{ selectedData, setSelectedData }}>
           <div className="app-container">
             {/* Header Wrapper */}
-            <div className="header-wrapper">
+            <div className="header-wrapper", ref={headerRef}>
               {/* Header */}
               <div className="content-header">
                   The Wizard of Pawz

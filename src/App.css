@@ -54,6 +54,13 @@
   font-size: calc(10px + 2vmin);
 }
 
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+}
+
 .App-link {
   color: #fff4f5;
 }

@@ -1,562 +1,200 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { DataStore } from 'aws-amplify';
 import { useNavigate } from 'react-router-dom';
-import { Dog, Event, Client } from './models';
-import { TextField, Button, Autocomplete, Modal, Select, MenuItem } from '@mui/material';
+import { Dog, Client } from './models';
+import {
+  TextField,
+  Button,
+  Autocomplete,
+  Modal,
+  Typography,
+  Box
+} from '@mui/material';
 import { DataContext } from './App';
 
-export function CreateDog() {
-    const [name, setName] = useState('');
-    const [breed, setBreed] = useState('');
-    const [age, setAge] = useState('');
-    const [temperment, setTemperment] = useState('');
-    const [plannedFrequency, setPlannedFrequency] = useState('');
-    const [style, setStyle] = useState('');
-    const [notes, setNotes] = useState('');
-    const [clients, setClients] = useState([]);
-    const [selectedClient, setSelectedClient] = useState(null);
-    const [errors, setErrors] = useState({});
-    const [errorModalOpen, setErrorModalOpen] = useState(false); // Popup modal
-    const [successModalOpen, setSuccessModalOpen] = useState(false); // Popup modal
-    const [modalMessage, setModalMessage] = useState('');
+// Reusable DogForm component for Create and Update
+export function DogForm({ initialValues = {}, onSubmit, mode = 'create' }) {
+  const navigate = useNavigate();
+  const [form, setForm] = useState({
+    Name: '',
+    Breed: '',
+    Age: '',
+    Temperment: '',
+    Planned_Frequency: '',
+    Style: '',
+    Notes: '',
+    Client: null,
+    ...initialValues
+  });
+  const [clients, setClients] = useState([]);
+  const [errors, setErrors] = useState({});
+  const [modal, setModal] = useState({ open: false, message: '', isError: false });
 
-    const errorBorderColor = 'red';
-    const noErrorBorderColor = '#cee9e3';
+  // Load clients
+  useEffect(() => {
+    DataStore.query(Client).then(setClients);
+  }, []);
 
-    const navigate = useNavigate();
+  // Validation logic: returns an errors object
+  const validate = (fields = form) => {
+    const errs = {};
+    if (!fields.Name.trim()) errs.Name = 'Name is required.';
+    if (!fields.Breed.trim()) errs.Breed = 'Breed is required.';
+    if (fields.Age !== '' && (isNaN(fields.Age) || fields.Age < 0))
+      errs.Age = 'Age must be a positive number or empty.';
+    if (!fields.Client) errs.Client = 'Client is required.';
+    return errs;
+  };
 
-    useEffect(() => {
-        const fetchClients = async () => {
-            const clientsData = await DataStore.query(Client);
-            setClients(clientsData);
-        };
-        fetchClients();
-    }, []);
+  const handleChange = (field) => (e, value) => {
+    const val = field === 'Client' ? value : e.target.value;
+    setForm((f) => ({ ...f, [field]: val }));
+    if (errors[field]) {
+      setErrors((errs) => {
+        const { [field]: _, ...rest } = errs;
+        return rest;
+      });
+    }
+  };
 
-    const validateField = (fieldId) => {
-        let tempErrors = { ...errors };
+  const handleBlur = (field) => () => {
+    const fieldErrs = validate({ [field]: form[field] });
+    setErrors((errs) => ({ ...errs, ...fieldErrs }));
+  };
 
-        switch (fieldId) {
-            case 'dog-create-name':
-                if (!name.trim()) {
-                    tempErrors.name = "Name is required."; 
-                    const el = document.getElementById(fieldId);
-                    el.style.borderColor = errorBorderColor;
-                }
-                else {
-                    delete tempErrors.name;
-                    const el = document.getElementById(fieldId);
-                    el.style.borderColor = noErrorBorderColor;
-                }
-                break;
-            case 'dog-create-breed':
-                if (!breed.trim()) {
-                    tempErrors.breed = "Breed is required.";
-                    const el = document.getElementById(fieldId);
-                    el.style.borderColor = errorBorderColor;
-                }
-                else {
-                    delete tempErrors.breed;
-                    const el = document.getElementById(fieldId);
-                    el.style.borderColor = noErrorBorderColor;
-                }
-                break;
-            case 'dog-create-age':
-                if (isNaN(age) || age<0) {
-                    tempErrors.age = "Age must be a positive number or be empty.";
-                    const el = document.getElementById(fieldId);
-                    el.style.borderColor = errorBorderColor;
-                }
-                else {
-                    delete tempErrors.age;
-                    const el = document.getElementById(fieldId);
-                    el.style.borderColor = noErrorBorderColor;
-                }
-                break;
-            case 'dog-create-client':
-                if (!selectedClient) {
-                    tempErrors.client = "Client is required and must be selected from the dropdown list.";
-                    const el = document.getElementById(fieldId).parentElement;
-                    el.style.borderColor = errorBorderColor;
-                }
-                else {
-                    delete tempErrors.client;
-                    const el = document.getElementById(fieldId).parentElement;
-                    el.style.borderColor = noErrorBorderColor;
-                }
-                break;
-            default:
-                break;
-        }
+  const handleSubmit = async () => {
+    const errs = validate();
+    setErrors(errs);
+    if (Object.keys(errs).length) {
+      setModal({ open: true, message: 'Please fix errors before saving.', isError: true });
+      return;
+    }
+    try {
+      await onSubmit(form);
+      setModal({ open: true, message: `Dog ${mode}d successfully!`, isError: false });
+      setTimeout(() => navigate('/Dataviewer'), 1000);
+    } catch (e) {
+      setModal({ open: true, message: e.message || 'Operation failed.', isError: true });
+    }
+  };
 
-        setErrors(tempErrors);
-        return tempErrors;
-    };
+  return (
+    <Box sx={{ maxWidth: 600, mx: 'auto', my: 4, p: 2 }}>
+      <Typography variant="h5" gutterBottom>
+        {mode === 'create' ? 'Create Dog' : 'Update Dog'}
+      </Typography>
+      {/** Form fields **/}
+      {['Name', 'Breed', 'Temperment', 'Planned_Frequency', 'Style', 'Notes'].map((field) => (
+        <TextField
+          key={field}
+          label={field.replace('_', ' ')}
+          value={form[field]}
+          onChange={handleChange(field)}
+          onBlur={handleBlur(field)}
+          error={!!errors[field]}
+          helperText={errors[field] || ' '}
+          fullWidth
+          margin="normal"
+        />
+      ))}
+      <TextField
+        label="Age"
+        type="number"
+        value={form.Age}
+        onChange={handleChange('Age')}
+        onBlur={handleBlur('Age')}
+        error={!!errors.Age}
+        helperText={errors.Age || ' '}
+        fullWidth
+        margin="normal"
+      />
+      <Autocomplete
+        options={clients}
+        getOptionLabel={(opt) => opt.Name || ''}
+        value={form.Client}
+        onChange={(e, v) => handleChange('Client')(e, v)}
+        onBlur={handleBlur('Client')}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label="Client"
+            error={!!errors.Client}
+            helperText={errors.Client || ' '}
+            margin="normal"
+            fullWidth
+          />
+        )}
+      />
 
-    const validateForm = () => {
-        var tempErrors = {}
-        Object.assign(tempErrors, validateField("dog-create-name"));
-        Object.assign(tempErrors, validateField("dog-create-breed"));
-        Object.assign(tempErrors, validateField("dog-create-age"));
-        Object.assign(tempErrors, validateField("dog-create-client"));
-        return tempErrors;
-    };
+      <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
+        <Button variant="contained" onClick={handleSubmit} disabled={Object.keys(errors).length > 0}>
+          Save
+        </Button>
+        <Button variant="outlined" onClick={() => navigate('/Dataviewer')}>
+          Cancel
+        </Button>
+      </Box>
 
-    const handleSubmit = async () => {
-        const tempErrors = validateForm();
-        if (Object.keys(tempErrors).length === 0) {
-            setModalMessage("Dog created successfully!");
-            setSuccessModalOpen(true);
-            
-            var awsAge = null;
-
-            if (age !== '') {
-                const today = new Date();
-                const totalDays = age * 365.25;
-                const birthDate = new Date(today - totalDays * 24 * 60 * 60 * 1000); // convert days to milliseconds and subtract from today
-                awsAge = `${birthDate.getFullYear()}-${String(birthDate.getMonth() + 1).padStart(2, '0')}-${String(birthDate.getDate()).padStart(2, '0')}`;
-
-            }
-            try {
-                await DataStore.save(new Dog({
-                    "Name": name,
-                    "Breed": breed,
-                    "Age": awsAge,
-                    "Temperment": temperment,
-                    "Planned_Frequency": plannedFrequency,
-                    "Style": style,
-                    "Notes": notes,
-                    "Client": selectedClient
-                }));
-            } catch (error) {
-                console.log("error:", error);
-            }
-            setTimeout(() => {
-                setSuccessModalOpen(false);
-                navigate('/Dataviewer');
-            }, 1200);
-        } else {
-            setModalMessage(Object.values(tempErrors).join('\n'));
-            setErrorModalOpen(true);
-        }
-    };
-
-    const handleCloseModal = () => {
-        setErrorModalOpen(false);
-        setSuccessModalOpen(false);
-    };
-
-    return (
-        <>
-            <div className="form-container">
-                <TextField 
-                    label="Name" 
-                    id="dog-create-name"
-                    value={name} 
-                    onChange={e => setName(e.target.value)} 
-                    fullWidth 
-                    onBlur={() => validateField("dog-create-name")}
-                    error={!!errors.name}
-                />
-                <TextField 
-                    label="Breed" 
-                    id="dog-create-breed"
-                    value={breed} 
-                    onChange={e => setBreed(e.target.value)} 
-                    fullWidth
-                    onBlur={() => validateField("dog-create-breed")}
-                    error={!!errors.breed}
-                />
-                <TextField 
-                    label="Age"
-                    id="dog-create-age"
-                    value={age} 
-                    onChange={e => setAge(e.target.value)} 
-                    type="number" 
-                    fullWidth
-                    onBlur={() => validateField("dog-create-age")}
-                    error={!!errors.age}
-                />
-                <TextField 
-                    label="Temperament" 
-                    value={temperment} 
-                    onChange={e => setTemperment(e.target.value)} 
-                    fullWidth 
-                />
-                <TextField 
-                    label="Planned Frequency" 
-                    value={plannedFrequency} 
-                    onChange={e => setPlannedFrequency(e.target.value)} 
-                    fullWidth 
-                />
-                <TextField 
-                    label="Style" 
-                    value={style} 
-                    onChange={e => setStyle(e.target.value)} 
-                    fullWidth 
-                />
-                <TextField 
-                    label="Notes" 
-                    value={notes} 
-                    onChange={e => setNotes(e.target.value)} 
-                    fullWidth 
-                />
-                <Autocomplete
-                    options={clients}
-                    id="dog-create-client"
-                    getOptionLabel={(option) => option.Name}
-                    onChange={(event, newValue) => {
-                        setSelectedClient(newValue);
-                        const el = document.getElementById("dog-create-client").parentElement;
-                        el.style.borderColor = noErrorBorderColor;
-                    }}
-                    renderInput={(params) => (
-                        <TextField 
-                            {...params} 
-                            label="Client"
-                            fullWidth
-                            onBlur={() => validateField("dog-create-client")}
-                            error={!!errors.client}
-                        />
-                    )}
-                />
-                <Button variant="contained" color="primary" onClick={handleSubmit}>Save</Button>
-                <Button variant="contained" onClick={() => navigate('/Dataviewer')}>Cancel</Button>
-            </div>
-
-            <Modal open={errorModalOpen} onClose={handleCloseModal}>
-                <div style={{ padding: "20px", background: "#fff", margin: "30vh auto", maxWidth: "400px", borderRadius: "5px"}}>
-                    <p>{modalMessage}</p>
-                    <Button className='data-action-link error-modal' onClick={handleCloseModal}>Ok</Button>
-                </div>
-            </Modal>
-            <Modal open={successModalOpen} onClose={handleCloseModal}>
-                <div style={{ padding: "20px", background: "#fff", margin: "30vh auto", maxWidth: "400px", borderRadius: "5px"}}>
-                    <p>{modalMessage}</p>
-                </div>
-            </Modal>
-        </>
-    );
+      <Modal open={modal.open} onClose={() => setModal((m) => ({ ...m, open: false }))}>
+        <Box sx={{ p: 3, bgcolor: '#fff', m: '20vh auto', maxWidth: 400, borderRadius: 1 }}>
+          <Typography color={modal.isError ? 'error' : 'primary'}>
+            {modal.message}
+          </Typography>
+          <Box sx={{ textAlign: 'right', mt: 2 }}>
+            <Button onClick={() => setModal((m) => ({ ...m, open: false }))}>
+              OK
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
+    </Box>
+  );
 }
 
-export function UpdateDog() {
-    const { selectedData: dogData, setSelectedData: setDogData } = useContext(DataContext);
-    const [id, setId] = useState('')
-    const [name, setName] = useState('');
-    const [breed, setBreed] = useState('');
-    const [age, setAge] = useState('');
-    const [temperment, setTemperment] = useState('');
-    const [plannedFrequency, setPlannedFrequency] = useState('');
-    const [style, setStyle] = useState('');
-    const [notes, setNotes] = useState('');
-    const [clients, setClients] = useState([])
-    const [clientId, setClientId] = useState('');
-    const [selectedClient, setSelectedClient] = useState('');
-    const [originalSelectedClient, setOriginalSelectedClient] = useState(null);
-    const [errors, setErrors] = useState({});
-    const [errorModalOpen, setErrorModalOpen] = useState(false); // Popup modal
-    const [successModalOpen, setSuccessModalOpen] = useState(false); // Popup modal
-    const [modalMessage, setModalMessage] = useState('');
-
-    const navigate = useNavigate();
-
-    const errorBorderColor = 'red';
-    const noErrorBorderColor = '#cee9e3';
-
-    const initalizeFormFields = () => {
-        if (dogData) {
-            setId(dogData.id);
-            setName(dogData.Name);
-            setBreed(dogData.Breed);
-            setAge(dateDifferenceInYears(dogData.Age) || '');
-            setTemperment(dogData.Temperment);
-            setPlannedFrequency(dogData.Planned_Frequency);
-            setStyle(dogData.Style);
-            setNotes(dogData.Notes);
-            setClientId(dogData.dogClientId);
-        }
-    };
-
-    const dateDifferenceInYears = (dateStr) => {
-        if (!dateStr) {
-            return '';
-        }
-        const currentDate = new Date();
-        const inputDate = new Date(dateStr);
-    
-        // Calculate the difference in milliseconds
-        const differenceInMillis = currentDate - inputDate;
-    
-        // Convert milliseconds to years
-        const differenceInYears = differenceInMillis / (1000 * 60 * 60 * 24 * 365.25);
-    
-        // Return years rounded to 1 decimal place
-        return parseFloat(differenceInYears.toFixed(1));
-    };
-
-    useEffect(() => {
-        const fetchClients = async () => {
-            const clientsData = await DataStore.query(Client);
-            setClients(clientsData);
-
-            // Find the client object with the matching clientId from the fetched data
-            const matchedClient = clientsData.find(client => client.id === dogData.dogClientId);
-            // Update the selectedClient state if a matching client is found
-            if (matchedClient) {
-                setSelectedClient(matchedClient);
-                setOriginalSelectedClient(matchedClient);
-            }
-        };
-        initalizeFormFields();
-        fetchClients();
-    }, []);
-
-    const validateField = (fieldId) => {
-        let tempErrors = { ...errors };
-
-        switch (fieldId) {
-            case 'dog-update-name':
-                if (!name.trim()) {
-                    tempErrors.name = "Name is required."; 
-                    const el = document.getElementById(fieldId);
-                    el.style.borderColor = errorBorderColor;
-                }
-                else {
-                    delete tempErrors.name;
-                    const el = document.getElementById(fieldId);
-                    el.style.borderColor = noErrorBorderColor;
-                }
-                break;
-            case 'dog-update-breed':
-                if (!breed.trim()) {
-                    tempErrors.breed = "Breed is required.";
-                    const el = document.getElementById(fieldId);
-                    el.style.borderColor = errorBorderColor;
-                }
-                else {
-                    delete tempErrors.breed;
-                    const el = document.getElementById(fieldId);
-                    el.style.borderColor = noErrorBorderColor;
-                }
-                break;
-            case 'dog-update-age':
-                if (isNaN(age) || age<0) {
-                    tempErrors.age = "Age must be a positive number or be empty.";
-                    const el = document.getElementById(fieldId);
-                    el.style.borderColor = errorBorderColor;
-                }
-                else {
-                    delete tempErrors.age;
-                    const el = document.getElementById(fieldId);
-                    el.style.borderColor = noErrorBorderColor;
-                }
-                break;
-            case 'dog-update-client':
-                if (!selectedClient) {
-                    tempErrors.client = "Client is required and must be selected from the dropdown list.";
-                    const el = document.getElementById(fieldId).parentElement;
-                    el.style.borderColor = errorBorderColor;
-                }
-                else {
-                    delete tempErrors.client;
-                    const el = document.getElementById(fieldId).parentElement;
-                    el.style.borderColor = noErrorBorderColor;
-                }
-                break;
-            default:
-                break;
-        }
-
-        setErrors(tempErrors);
-        return tempErrors;
-    };
-
-    const validateForm = () => {
-        var tempErrors = {}
-        Object.assign(tempErrors, validateField("dog-update-name"));
-        Object.assign(tempErrors, validateField("dog-update-breed"));
-        Object.assign(tempErrors, validateField("dog-update-age"));
-        Object.assign(tempErrors, validateField("dog-update-client"));
-        return tempErrors;
-    };
-
-    const checkForChanges = () => {
-        let updatedAttributes = {};
-        let originalAttributes = {
-            "Name": dogData.Name,
-            "Breed": dogData.Breed,
-            "Age": dogData.Age,
-            "Planned_Frequency": dogData.Planned_Frequency,
-            "Style": dogData.Style,
-            "Temperment": dogData.Temperment,
-            "id": dogData.id,
-            "Notes": dogData.Notes,
-        };
-
-        const originalAge = dateDifferenceInYears(dogData.Age);
-    
-        if (dogData.Name !== name) updatedAttributes.Name = name;
-        if (dogData.Breed !== breed) updatedAttributes.Breed = breed;
-        if (originalAge !== age) updatedAttributes.Age = age;
-        if (dogData.Style !== style) updatedAttributes.Style = style;
-        if (dogData.Temperment !== temperment) updatedAttributes.Temperment = temperment;
-        if (dogData.Planned_Frequency !== plannedFrequency) updatedAttributes.Planned_Frequency = plannedFrequency;
-        if (dogData.Notes !== notes) updatedAttributes.Notes = notes;
-        if (selectedClient !== originalSelectedClient) updatedAttributes.Client = selectedClient;
-    
-        return updatedAttributes;
-    };
-
-    const handleSubmit = async () => {
-        const tempErrors = validateForm();
-        if (Object.keys(tempErrors).length === 0) {
-            try {
-                const dogOriginal = await DataStore.query(Dog, id);
-                if (!dogOriginal) {
-                    console.error("No matching dog record found. Aborting save.");
-                    return;
-                }
-                const changes = checkForChanges()
-                if (Object.keys(changes).length) {
-                    if (changes.hasOwnProperty('Age')) {
-                        if (!changes.Age) {
-                            changes.Age = null;
-                        } else {
-                            const today = new Date();
-                            const totalDays = changes.Age * 365.25;
-                            const birthDate = new Date(today - totalDays * 24 * 60 * 60 * 1000); // convert days to milliseconds and subtract from today
-                            changes.Age = `${birthDate.getFullYear()}-${String(birthDate.getMonth() + 1).padStart(2, '0')}-${String(birthDate.getDate()).padStart(2, '0')}`;
-                        }
-                    }
-                    await DataStore.save(
-                        Dog.copyOf(dogOriginal, updatedDog => {
-                            for (let key in changes) {
-                                updatedDog[key] = changes[key];
-                            }
-                        })
-                    );
-                    setModalMessage("Dog updated successfully!");
-                    setSuccessModalOpen(true);
-                    setTimeout(() => {
-                        setSuccessModalOpen(false);
-                        navigate('/Dataviewer');
-                    }, 1200);
-                } else {
-                    setModalMessage("No changes to save!");
-                    setSuccessModalOpen(true);
-                    setTimeout(() => {
-                        setSuccessModalOpen(false);
-                    }, 1200);
-                }
-            } catch (error) {
-                setModalMessage(`Dog update failed with error\n {error}`);
-                setSuccessModalOpen(true);
-                console.log("error:", error);
-                setTimeout(() => {
-                    setSuccessModalOpen(false);
-                }, 1200);
-            }
-        } else {
-            setModalMessage(Object.values(tempErrors).join('\n'));
-            setErrorModalOpen(true);
-        }
-    };
-
-    const handleCloseModal = () => {
-        setErrorModalOpen(false);
-        setSuccessModalOpen(false);
-    };
-
-    return (
-        <>
-            <div className="form-container">
-                <TextField 
-                    label="Name" 
-                    id="dog-update-name"
-                    value={name} 
-                    onChange={e => setName(e.target.value)} 
-                    fullWidth 
-                    onBlur={() => validateField("dog-update-name")}
-                    error={!!errors.name}
-                />
-                <TextField 
-                    label="Breed" 
-                    id="dog-update-breed"
-                    value={breed} 
-                    onChange={e => setBreed(e.target.value)} 
-                    fullWidth
-                    onBlur={() => validateField("dog-update-breed")}
-                    error={!!errors.breed}
-                />
-                <TextField 
-                    label="Age"
-                    id="dog-update-age"
-                    value={age} 
-                    onChange={e => setAge(e.target.value)} 
-                    type="number" 
-                    fullWidth
-                    onBlur={() => validateField("dog-update-age")}
-                    error={!!errors.age}
-                />
-                <TextField 
-                    label="Temperament" 
-                    value={temperment} 
-                    onChange={e => setTemperment(e.target.value)} 
-                    fullWidth 
-                />
-                <TextField 
-                    label="Planned Frequency" 
-                    value={plannedFrequency} 
-                    onChange={e => setPlannedFrequency(e.target.value)} 
-                    fullWidth 
-                />
-                <TextField 
-                    label="Style" 
-                    value={style} 
-                    onChange={e => setStyle(e.target.value)} 
-                    fullWidth 
-                />
-                <TextField 
-                    label="Notes" 
-                    value={notes} 
-                    onChange={e => setNotes(e.target.value)} 
-                    fullWidth 
-                />
-                <Autocomplete
-                    options={clients}
-                    value={selectedClient ? selectedClient : null}
-                    id="dog-update-client"
-                    getOptionLabel={(option) => option ? option.Name : ''}
-                    onChange={(event, newValue) => {
-                        setSelectedClient(newValue);
-                        const el = document.getElementById("dog-update-client").parentElement;
-                        el.style.borderColor = noErrorBorderColor;
-                    }}
-                    renderInput={(params) => (
-                        <TextField 
-                            {...params} 
-                            label="Client"
-                            fullWidth
-                            onBlur={() => validateField("dog-update-client")}
-                            error={!!errors.client}
-                        />
-                    )}
-                />
-                <Button variant="contained" color="primary" onClick={handleSubmit}>Save</Button>
-                <Button variant="contained" onClick={() => navigate('/Dataviewer')}>Cancel</Button>
-            </div>
-
-            <Modal open={errorModalOpen} onClose={handleCloseModal}>
-                <div style={{ padding: "20px", background: "#fff", margin: "30vh auto", maxWidth: "400px", borderRadius: "5px"}}>
-                    <p>{modalMessage}</p>
-                    <Button className='data-action-link error-modal' onClick={handleCloseModal}>Ok</Button>
-                </div>
-            </Modal>
-            <Modal open={successModalOpen} onClose={handleCloseModal}>
-                <div style={{ padding: "20px", background: "#fff", margin: "30vh auto", maxWidth: "400px", borderRadius: "5px", textAlign: "left"}}>
-                    <p>{modalMessage}</p>
-                </div>
-            </Modal>
-        </>
+// CreateDog using DogForm
+export function CreateDog() {
+  const submitCreate = async (data) => {
+    let awsAge = null;
+    if (data.Age !== '') {
+      const days = data.Age * 365.25;
+      awsAge = new Date(Date.now() - days * 86400000).toISOString().split('T')[0];
+    }
+    await DataStore.save(
+      new Dog({
+        ...data,
+        Age: awsAge,
+      })
     );
+  };
+  return <DogForm mode="create" onSubmit={submitCreate} />;
+}
+
+// UpdateDog using DogForm
+export function UpdateDog() {
+  const { selectedData } = useContext(DataContext);
+  const init = selectedData
+    ? {
+        ...selectedData,
+        Age: selectedData.Age // keep as years if already converted
+      }
+    : {};
+
+  const submitUpdate = async (data) => {
+    const orig = await DataStore.query(Dog, selectedData.id);
+    const changes = {};
+    Object.keys(data).forEach((key) => {
+      if (data[key] !== selectedData[key]) {
+        changes[key] = key === 'Age' && data.Age !== ''
+          ? new Date(Date.now() - data.Age * 365.25 * 86400000).toISOString().split('T')[0]
+          : data[key];
+      }
+    });
+    if (Object.keys(changes).length) {
+      await DataStore.save(
+        Dog.copyOf(orig, (d) => Object.assign(d, changes))
+      );
+    }
+  };
+
+  return <DogForm mode="update" initialValues={init} onSubmit={submitUpdate} />;
 }

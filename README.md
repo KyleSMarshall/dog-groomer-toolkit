@@ -45,3 +45,19 @@ Built as a hands-on project to learn AWS Amplify, GraphQL models, and React from
 
 ## 📂 Project Structure
 
+  /src
+  ├── App.js # Main app & routing
+  ├── models/ # Amplify auto-generated models
+  ├── CustomDogForms.js # Create/Update Dog
+  ├── CustomClientForms.js # Create/Update Client
+  ├── DataViewer.js # MUI DataGrid view
+  ├── CalendarView.js # FullCalendar view
+  ├── App.css # Styles
+
+
+## 📈 Roadmap / Improvements
+- Clean up large files into reusable components
+- Replace direct DOM style hacks with React state
+- Add loading spinners for DataStore operations
+- Add basic unit tests for helper logic
+- Polish responsive styling

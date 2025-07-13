@@ -45,7 +45,7 @@ Built as a hands-on project to learn AWS Amplify, GraphQL models, and React from
 
 ## 📂 Project Structure
 
-  /src
+  src
   ├── App.js # Main app & routing
   ├── models/ # Amplify auto-generated models
   ├── CustomDogForms.js # Create/Update Dog

@@ -2,10 +2,7 @@
 
 A full-stack scheduling and management tool for dog groomers — built with **React**, **AWS Amplify DataStore**, **AWS Lambda**, **AWS SNS**, **FullCalendar**, and **MUI DataGrid**.
 
-I built this for my sister as a birthday present, who is a very talented dog groomer and works independently. Her one complaint was there there was so software available with an intuitive UI and calendar functionality that allowed her to manage human contacts, dog contacts, and schedule appointments all in one relational database.
-Prior to building this, I had zero experience in AWS. I learned the Azure ecosystem from the ground up during my time at Axis. I wore many hats as a solutions architect, MLops pipeline developer, data scientist/engineer. 
-I was excited to explore the similarities and differences between the AWS and Azure ecosystem as part of this project. Furthermore, I was excited to explore how quickly I could learn and leverage AWS to launch an end-to-end CRUD responsive (phone, PC, iPad) calendar webapp with offline availability and automated appointment text-message reminders.
-The entire project was completed, online, and delivered in 3 weeks.
+I built this for my sister as a birthday present, who is a very talented dog groomer and works independently. Her one complaint was that there was no software available with an intuitive UI and calendar functionality that allowed her to manage human contacts, their associated dog contacts, and schedule appointments all in one relational database. Prior to building this, I had zero experience in AWS. I learned the Azure ecosystem from the ground up during my time at Axis. Axis provided me the opportunity and support to really dig into and explore Azure cloud solutions, and so I wore many hats during that time (solutions architect, MLOps pipeline developer, data scientist/engineer). I was excited to explore the similarities and differences between the AWS and Azure ecosystem as part of this project. Furthermore, I was excited to explore how quickly I could learn and leverage AWS to launch an end-to-end CRUD responsive (phone, PC, iPad) calendar webapp with offline availability and automated appointment text-message reminders. The entire project was completed, online, and delivered in 3 weeks.
 
 ---
 
